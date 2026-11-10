@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Kuesioner gejala')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <nav th:replace="~{fragments/layout :: metodeTabs('GEJALA')}"></nav>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Kuesioner gejala · untuk umum</p>
+                <h1>Seberapa yakin Anda mengalami gejala ini?</h1>
+                <p>Isi data diri, lalu pilih tingkat keyakinan untuk setiap gejala. Biarkan “Tidak tahu” bila ragu.</p>
+                <span class="heart-hint page-heart-hint" style="margin-top:12px" id="detak-label">Jantung di samping bereaksi terhadap jawaban Anda</span>
+            </div>
+            <div class="page-heart" id="jantung-diagnosa"><div th:replace="~{fragments/layout :: heart('')}"></div></div>
+        </div>
+
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+
+        <div th:replace="~{fragments/layout :: peringatan}"></div>
+
+        <form id="form-diagnosa" th:action="@{/diagnosa}" method="post">
+            <section class="card data-diri" style="margin-bottom:28px" aria-labelledby="judul-data-diri">
+                <div class="data-diri-head">
+                    <div>
+                        <p class="eyebrow">Langkah 1 dari 2</p>
+                        <h2 id="judul-data-diri">Data diri &amp; pemeriksaan fisik</h2>
+                        <p class="small muted">Seperti formulir <i>medical check up</i>. Data ini ikut tercetak di PDF hasil dan
+                            tidak mengubah perhitungan tingkat keyakinan.</p>
+                    </div>
+                    <dl class="ringkas-fisik" aria-live="polite">
+                        <div><dt>Umur</dt><dd id="out-umur">—</dd></div>
+                        <div><dt>IMT</dt><dd id="out-imt">—</dd></div>
+                    </dl>
+                </div>
+
+                <p class="sub-judul-form">Identitas</p>
+                <div class="grid g-3">
+                    <label class="field"><span>Nama pasien</span>
+                        <input class="input" name="namaPasien" th:value="${form['namaPasien']}" required maxlength="100" autocomplete="name">
+                        <small>Nama Anda atau orang yang Anda bantu periksa.</small>
+                    </label>
+                    <div class="field"><span id="lbl-jk">Jenis kelamin</span>
+                        <div class="seg seg-penuh" role="radiogroup" aria-labelledby="lbl-jk">
+                            <label><input type="radio" name="jenisKelamin" value="L" required th:checked="${form['jenisKelamin'] == 'L'}"><span class="yes">Laki-laki</span></label>
+                            <label><input type="radio" name="jenisKelamin" value="P" th:checked="${form['jenisKelamin'] == 'P'}"><span class="yes">Perempuan</span></label>
+                        </div>
+                        <small>Sesuai identitas.</small>
+                    </div>
+                    <label class="field"><span>Tanggal lahir</span>
+                        <input class="input" type="date" name="tanggalLahir" id="in-lahir" required min="1896-01-01"
+                               th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" th:value="${form['tanggalLahir']}">
+                        <small>Umur dihitung otomatis.</small>
+                    </label>
+                    <label class="field span-2"><span>Alamat <span class="opsional">(opsional)</span></span>
+                        <input class="input" name="alamat" maxlength="255" autocomplete="street-address" th:value="${form['alamat']}">
+                        <small>Jalan, kelurahan, kota.</small>
+                    </label>
+                    <label class="field"><span>No. telepon <span class="opsional">(opsional)</span></span>
+                        <input class="input" type="tel" name="telepon" maxlength="20" inputmode="tel" autocomplete="tel"
+                               pattern="\+?[0-9 .\-]{8,20}" th:value="${form['telepon']}">
+                        <small>Contoh: 081234567890</small>
+                    </label>
+                </div>
+
+                <p class="sub-judul-form">Pemeriksaan fisik</p>
+                <div class="grid g-3 fisik">
+                    <label class="field"><span>Tinggi badan</span>
+                        <span class="input-unit"><input class="input num" type="number" name="tinggiCm" id="in-tinggi" required
+                               min="50" max="250" step="0.1" inputmode="decimal" th:value="${form['tinggiCm']}"><em>cm</em></span>
+                        <small>Tanpa alas kaki.</small>
+                    </label>
+                    <label class="field"><span>Berat badan</span>
+                        <span class="input-unit"><input class="input num" type="number" name="beratKg" id="in-berat" required
+                               min="2" max="300" step="0.1" inputmode="decimal" th:value="${form['beratKg']}"><em>kg</em></span>
+                        <small>Timbang terbaru.</small>
+                    </label>
+                    <div class="field"><span>Indeks massa tubuh</span>
+                        <output class="input input-hitung" id="out-imt-field" for="in-tinggi in-berat">—</output>
+                        <small>Dihitung otomatis · normal 18,5–25,0.</small>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card skala-info" aria-labelledby="judul-skala">
+                <div>
+                    <p class="eyebrow">Langkah 2 dari 2 · Kuesioner gejala</p>
+                    <h2 id="judul-skala">Pilih tingkat keyakinan untuk setiap gejala</h2>
+                    <p class="small muted">Sembilan tingkat mengikuti tabel interpretasi <i>Certainty Theory</i>. Jawaban “tidak”
+                        menurunkan keyakinan, jawaban “ya” menaikkannya. Pilih <b>Tidak tahu</b> bila ragu — tidak ikut dihitung.</p>
+                </div>
+                <ol class="skala-legenda" aria-label="Skala keyakinan">
+                    <li th:each="t : ${tingkat}" th:classappend="${t.arah}"><b th:text="${t.nilaiTampil}">0</b><span th:text="${t.label}">Label</span></li>
+                </ol>
+            </section>
+
+            <section class="q-group" th:each="k : ${kelompok}" th:attr="data-kategori=${k.kategori()}">
+                <div class="q-head">
+                    <span class="tag" th:classappend="${k.kategori() == 'RISIKO'} ? 'risk' : (${k.kategori() == 'NORMAL'} ? 'ok' : '')"
+                          th:text="${k.judul()}">Kelompok</span>
+                    <span class="small muted" th:text="${k.subjudul()}">Sub</span>
+                </div>
+                <div class="q-list">
+                    <div class="q q-skala" th:each="g : ${k.gejala()}"
+                         th:with="dipilih=${pilihan[g.id()] != null ? pilihan[g.id()] : '0'}">
+                        <div>
+                            <div class="q-title">
+                                <span class="code" th:text="${g.kode()}">D01</span>
+                                <b th:text="${g.nama()}">Gejala</b>
+                            </div>
+                            <p class="q-desc" th:if="${g.keterangan()}" th:text="${g.keterangan()}">Keterangan</p>
+                        </div>
+                        <div class="skala" role="radiogroup" th:attr="aria-label='Keyakinan ' + ${g.kode()}">
+                            <label th:each="t : ${tingkat}" th:class="${t.arah}">
+                                <input type="radio" th:name="'g_' + ${g.id()}" th:value="${t.nilaiTeks}"
+                                       th:checked="${t.nilaiTeks == dipilih}">
+                                <span><b th:text="${t.labelPendek}">Opsi</b><small th:text="${t.nilaiTampil}">0</small></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="submit-bar">
+                <span class="count row" style="gap:10px"><span class="beat-ico" id="detak-ikon"><svg class="i"><use href="#i-heart"/></svg></span><span><b id="jumlah-dipilih">0</b> dari <th:block th:text="${totalGejala}">13</th:block> gejala dijawab</span></span>
+                <button class="btn white" type="submit" data-memuat="Memproses…">Lihat hasil <svg class="i"><use href="#i-right"/></svg></button>
+            </div>
+            <p class="catatan-privasi"><svg class="i"><use href="#i-lock"/></svg>Hasil disimpan di akun Anda ·
+                <a class="tautan" th:href="@{/privasi}">Kebijakan privasi</a></p>
+        </form>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

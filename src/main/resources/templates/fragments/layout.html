@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+
+<head th:fragment="head(title)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#eceef1">
+    <meta name="robots" content="noindex, nofollow" th:if="${noindex != null and noindex}">
+    <meta name="description" content="Cek risiko penyakit jantung secara mandiri lewat kuesioner gejala singkat, dengan hasil dan saran langsung.">
+    <title th:text="${title} + ' · Jantungku'">Jantungku</title>
+    <link rel="preload" th:href="@{/fonts/plus-jakarta-sans-latin.woff2}" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" th:href="@{/css/app.css(v=${v})}">
+    <link rel="manifest" th:href="@{/manifest.webmanifest}">
+    <link rel="icon" th:href="@{/img/icon.svg}" type="image/svg+xml">
+    <link rel="apple-touch-icon" th:href="@{/img/icon.svg}">
+    <script th:src="@{/js/app.js(v=${v})}" defer></script>
+</head>
+
+<body>
+
+<!-- ============================ ikon (sprite) ============================ -->
+<svg th:fragment="sprite" xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9v11h13V9"/><path d="M10 20v-5.5h4V20"/></symbol>
+    <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M2.5 12h4.2l2.3-5.5 4.2 11 2.4-5.5h5.9"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5S3 15 3 8.8C3 6.1 5.1 4 7.7 4c1.8 0 3.4 1 4.3 2.5C12.9 5 14.5 4 16.3 4 18.9 4 21 6.1 21 8.8 21 15 12 20.5 12 20.5z"/></symbol>
+    <symbol id="i-heart-pulse" viewBox="0 0 24 24"><path d="M12 20.5S3 15 3 8.8C3 6.1 5.1 4 7.7 4c1.8 0 3.4 1 4.3 2.5C12.9 5 14.5 4 16.3 4 18.9 4 21 6.1 21 8.8 21 15 12 20.5 12 20.5z"/><path d="M6.5 12h2.8l1.4-2.6 2.3 5 1.5-2.4h3"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5.5" y="4.5" width="13" height="16" rx="2.5"/><path d="M9.5 4.5v-.7c0-.7.6-1.3 1.3-1.3h2.4c.7 0 1.3.6 1.3 1.3v.7"/><path d="m9.3 13 2 2 3.7-4"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20c.9-3.6 4-5.5 7.5-5.5s6.6 1.9 7.5 5.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.3"/><path d="M2.8 19.5c.7-3.1 3.2-4.8 6.2-4.8s5.5 1.7 6.2 4.8"/><path d="M15.5 5.4a3.3 3.3 0 0 1 0 6.3"/><path d="M17.6 14.8c1.9.6 3.2 2.2 3.6 4.7"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><path d="M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01" stroke-width="2.6"/></symbol>
+    <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5.5" r="2"/><circle cx="6" cy="18.5" r="2"/><circle cx="18" cy="8.5" r="2"/><path d="M6 7.5v9"/><path d="M18 10.5c0 3.8-5.2 3.4-11 6.6"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3.5 9 5-9 5-9-5 9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4.5h3.5c.8 0 1.5.7 1.5 1.5v12c0 .8-.7 1.5-1.5 1.5H14"/><path d="m10 8-4 4 4 4"/><path d="M6 12h9"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15"/><path d="M9.5 7V5h5v2"/><path d="m6.5 7 .9 12.2c.1.8.7 1.3 1.5 1.3h6.2c.8 0 1.4-.5 1.5-1.3L17.5 7"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V3.5h10V9"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v6.5H7z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><path d="M5.5 12h.01M12 12h.01M18.5 12h.01" stroke-width="3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15.5V4.5M7.5 9 12 4.5 16.5 9"/><path d="M4.5 15v3c0 .8.7 1.5 1.5 1.5h12c.8 0 1.5-.7 1.5-1.5v-3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4.5v11M7.5 11 12 15.5 16.5 11"/><path d="M4.5 15v3c0 .8.7 1.5 1.5 1.5h12c.8 0 1.5-.7 1.5-1.5v-3"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3.5H7c-.8 0-1.5.7-1.5 1.5v14c0 .8.7 1.5 1.5 1.5h10c.8 0 1.5-.7 1.5-1.5V8L14 3.5z"/><path d="M14 3.5V8h4.5"/><path d="M9 13h6M9 16.5h4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 21 19.5H3L12 4z"/><path d="M12 10v4.5"/><path d="M12 17h.01" stroke-width="2.4"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><path d="M12 8h.01" stroke-width="2.4"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7.5h7"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.8h.01M12 15.8h.01M15.5 15.8h.01" stroke-width="2.4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5.5c0 4.4 3 7.8 7 9.5 4-1.7 7-5.1 7-9.5V6l-7-3z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 5.6A10 10 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6A16.5 16.5 0 0 0 2.5 12S6 18.5 12 18.5a9.6 9.6 0 0 0 4.4-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5s6 6.4 6 10.6a6 6 0 0 1-12 0c0-4.2 6-10.6 6-10.6z"/></symbol>
+</svg>
+
+<!-- ============================ header aplikasi ============================ -->
+<header th:fragment="appbar" class="appbar" th:data-sesi-menit="${me.isPetugas()} ? 30 : null">
+    <a class="brand" th:href="@{${me.beranda}}">
+        <span class="brand-mark"><svg class="i"><use href="#i-heart-pulse"/></svg></span>
+        <span class="brand-name">Jantungku<small>Cek risiko jantung</small></span>
+    </a>
+    <nav class="nav-pill" aria-label="Menu utama" th:classappend="${#lists.size(menu) > 6} ? 'compact'">
+        <a th:each="m : ${menu}" th:href="@{${m.href()}}" th:classappend="${m.aktif(path)} ? 'on'" th:title="${m.label()}">
+            <svg class="i"><use th:attr="href='#i-' + ${m.ikon()}"/></svg>
+            <span th:text="${m.label()}">Menu</span>
+        </a>
+    </nav>
+    <div class="who">
+        <a th:href="@{/profil}" class="avatar" th:classappend="${me.isAdmin()} ? 'admin' : (${me.isPakar()} ? 'pakar' : '')"
+           th:text="${me.inisial()}" title="Profil">AB</a>
+        <div class="who-text">
+            <b th:text="${me.nama()}">Nama</b>
+            <span th:text="${me.roleLabel}">Role</span>
+        </div>
+        <form th:action="@{/logout}" method="post" class="logout-desktop">
+            <button class="icon-btn" type="submit" title="Keluar" aria-label="Keluar">
+                <svg class="i"><use href="#i-logout"/></svg>
+            </button>
+        </form>
+    </div>
+</header>
+
+<!-- ============================ header halaman publik ============================
+     halaman: beranda | masuk | daftar | tentang | privasi | petugas | lain -->
+<header th:fragment="pubbar(halaman)" class="pub-bar">
+    <div class="pub-pil">
+        <a class="brand" th:href="@{/}" aria-label="Jantungku, ke beranda">
+            <span class="brand-mark"><svg class="i"><use href="#i-heart-pulse"/></svg></span>
+            <span class="brand-name">Jantungku<small>Cek risiko jantung</small></span>
+        </a>
+        <nav class="pub-nav" aria-label="Navigasi">
+            <a th:href="@{/}" th:classappend="${halaman == 'beranda'} ? 'on'">Beranda</a>
+            <a th:if="${halaman == 'beranda'}" href="#layanan">Layanan</a>
+            <a th:href="@{/tentang}" th:classappend="${halaman == 'tentang'} ? 'on'">Tentang</a>
+            <a th:href="@{/privasi}" th:classappend="${halaman == 'privasi'} ? 'on'">Privasi</a>
+        </nav>
+    </div>
+    <div class="actions">
+        <th:block th:if="${me != null}">
+            <a class="btn" th:href="@{${me.beranda}}">Buka aplikasi <span class="panah"><svg class="i"><use href="#i-right"/></svg></span></a>
+        </th:block>
+        <th:block th:if="${me == null and halaman != 'petugas'}">
+            <a class="btn ghost" th:unless="${halaman == 'masuk'}" th:href="@{/login}">Masuk</a>
+            <a class="btn" th:unless="${halaman == 'daftar'}" th:href="@{/daftar}">Buat akun <span class="panah"><svg class="i"><use href="#i-right"/></svg></span></a>
+        </th:block>
+    </div>
+</header>
+
+<!-- ============================ footer ============================ -->
+<footer th:fragment="footer" class="site-foot">
+    <nav class="foot-links" aria-label="Informasi">
+        <a th:href="@{/}">Beranda</a>
+        <a th:href="@{/tentang}">Tentang</a>
+        <a th:href="@{/privasi}">Kebijakan privasi</a>
+    </nav>
+    <p>Hasil sistem ini bersifat informatif dan tidak menggantikan pemeriksaan maupun diagnosis dokter.
+        Bila mengalami nyeri dada hebat, sesak napas, atau pingsan, segera hubungi layanan gawat darurat <b>119</b>.</p>
+    <p class="tiny" th:text="'© ' + ${#dates.year(#dates.createNow())} + ' Jantungku'">© Jantungku</p>
+</footer>
+
+<!-- ============================ navigasi bawah (mobile) ============================ -->
+<nav th:fragment="bottomnav" class="bottom-nav" aria-label="Menu">
+    <a th:each="m : ${menu}" th:if="${m.utama()}" th:href="@{${m.href()}}"
+       th:classappend="${m.aktif(path)} ? 'on'" th:title="${m.label()}">
+        <svg class="i"><use th:attr="href='#i-' + ${m.ikon()}"/></svg>
+        <span class="sr-only" th:text="${m.label()}">Menu</span>
+    </a>
+    <details class="more">
+        <summary title="Lainnya"><svg class="i"><use href="#i-more"/></svg><span class="sr-only">Lainnya</span></summary>
+        <div class="more-sheet">
+            <a th:each="m : ${menu}" th:unless="${m.utama()}" th:href="@{${m.href()}}"
+               class="sheet-link" th:classappend="${m.aktif(path)} ? 'on'">
+                <svg class="i"><use th:attr="href='#i-' + ${m.ikon()}"/></svg><span th:text="${m.label()}">Menu</span>
+            </a>
+            <a th:if="${me.isPetugas()}" th:href="@{/profil}" class="sheet-link" th:classappend="${path == '/profil'} ? 'on'">
+                <svg class="i"><use href="#i-user"/></svg><span>Profil</span>
+            </a>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="sheet-link"><svg class="i"><use href="#i-logout"/></svg><span>Keluar</span></button>
+            </form>
+        </div>
+    </details>
+</nav>
+
+<!-- ============================ pengingat medis (tegas) ============================ -->
+<div th:fragment="peringatan" class="peringatan-medis" role="note">
+    <span class="peringatan-ikon" aria-hidden="true"><svg class="i"><use href="#i-alert"/></svg></span>
+    <div class="peringatan-teks">
+        <b>Hasil ini bukan diagnosis dokter</b>
+        <p>Jantungku hanya memperkirakan risiko dari data yang Anda isi. Keputusan medis tetap di tangan dokter
+            atau tenaga kesehatan.</p>
+    </div>
+    <a class="peringatan-darurat" href="tel:119">
+        <small>Nyeri dada hebat, sesak napas, atau pingsan?</small>
+        <span>Hubungi <b>119</b></span>
+    </a>
+</div>
+
+<!-- ============================ pesan ============================ -->
+<th:block th:fragment="flash">
+    <div class="alert ok" th:if="${sukses}" role="status" data-hilang>
+        <svg class="i"><use href="#i-check"/></svg><span class="grow" th:text="${sukses}">Berhasil</span>
+        <button type="button" class="alert-x" data-tutup aria-label="Tutup pesan"><svg class="i i-sm"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="alert err" th:if="${gagal}" role="alert">
+        <svg class="i"><use href="#i-info"/></svg><span class="grow" th:text="${gagal}">Gagal</span>
+        <button type="button" class="alert-x" data-tutup aria-label="Tutup pesan"><svg class="i i-sm"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="alert err" th:unless="${#lists.isEmpty(errors)}" role="alert">
+        <svg class="i"><use href="#i-info"/></svg>
+        <ul><li th:each="e : ${errors}" th:text="${e}">Kesalahan</li></ul>
+    </div>
+</th:block>
+
+<!-- ============================ gauge setengah lingkaran ============================ -->
+<div th:fragment="gauge(cf, kelas, label)" class="gauge" th:classappend="${kelas}">
+    <svg viewBox="0 0 200 110" aria-hidden="true">
+        <path class="track" d="M16 100 A84 84 0 0 1 184 100" fill="none" stroke-width="16" stroke-linecap="round" pathLength="100"/>
+        <path class="val" th:if="${cf != null and cf.signum() > 0}" d="M16 100 A84 84 0 0 1 184 100" fill="none"
+              stroke-width="16" stroke-linecap="round" pathLength="100"
+              th:style="'stroke-dasharray:' + ${@fmt.lebar(cf)} + ' 100'"/>
+    </svg>
+    <div class="gauge-num">
+        <b><span data-count-dec th:text="${@fmt.angkaPersen(cf)}">0,00</span><small>%</small></b>
+        <span th:text="${label}">label</span>
+    </div>
+</div>
+
+<!-- ============================ perbandingan metrik dua metode ============================
+     baris: List<Metrik.Banding> (disiapkan controller lewat Metrik.bandingkan). Nilai ditulis di ujung batang. -->
+<div th:fragment="perbandinganMetode(baris)" class="gbars" role="img" aria-label="Perbandingan metrik evaluasi pemeriksaan klinis dan kuesioner gejala">
+    <div class="gbar" th:each="x : ${baris}">
+        <b th:text="${x.nama()}">Akurasi</b>
+        <div class="track" tabindex="0" th:data-tip="${x.tipA()}">
+            <i class="ma" th:style="'width:' + ${@fmt.lebar(x.a())} + '%'"></i><span th:text="${@fmt.persen(x.a())}">0%</span>
+        </div>
+        <div class="track" tabindex="0" th:data-tip="${x.tipB()}">
+            <i class="mb" th:style="'width:' + ${@fmt.lebar(x.b())} + '%'"></i><span th:text="${@fmt.persen(x.b())}">0%</span>
+        </div>
+    </div>
+</div>
+<!-- ============================ tab metode diagnosa ============================ -->
+<nav th:fragment="metodeTabs(aktif)" class="tabs" aria-label="Metode diagnosa">
+    <a th:href="@{/diagnosa}" th:classappend="${aktif == 'GEJALA'} ? 'on'">
+        <svg class="i"><use href="#i-list"/></svg><span>Kuesioner gejala<small>Untuk umum</small></span>
+    </a>
+    <a th:href="@{/diagnosa/klinis}" th:classappend="${aktif == 'KLINIS'} ? 'on'">
+        <svg class="i"><use href="#i-clipboard"/></svg><span>Pemeriksaan klinis<small>Untuk tenaga kesehatan</small></span>
+    </a>
+</nav>
+
+<!-- ============================ garis EKG bergerak ============================ -->
+<svg th:fragment="ecg" class="ecg" viewBox="0 0 400 64" preserveAspectRatio="none" aria-hidden="true">
+    <path class="ecg-base" vector-effect="non-scaling-stroke" d="M0 36H118l9-12 9 22 12-44 14 52 10-26h18l8-8 8 8H400"/>
+    <path class="ecg-sweep" vector-effect="non-scaling-stroke" pathLength="1000" d="M0 36H118l9-12 9 22 12-44 14 52 10-26h18l8-8 8 8H400"/>
+</svg>
+
+<!-- ============================ jantung berdetak ============================
+     kelas: '' (lilac, 60 bpm) | 'risk' (koral, cepat) | 'ok' (teal, tenang) | 'on-dark'
+     Foto jantung berdetak dengan pendar dan orbit cahaya. Ketuk/klik untuk memacu detaknya sesaat. -->
+<div th:fragment="heart(kelas)" class="heart" th:classappend="${kelas}" data-heart
+     role="img" aria-label="Ilustrasi jantung berdetak">
+    <div class="heart-stage">
+        <span class="heart-glow" aria-hidden="true"></span>
+        <span class="heart-glow late" aria-hidden="true"></span>
+        <svg class="heart-flow" viewBox="0 0 400 400" aria-hidden="true">
+            <ellipse cx="200" cy="222" rx="188" ry="66" transform="rotate(-16 200 222)" pathLength="100"/>
+            <ellipse class="rev" cx="200" cy="230" rx="176" ry="54" transform="rotate(12 200 230)" pathLength="100"/>
+        </svg>
+        <svg class="heart-ecg" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden="true">
+            <path vector-effect="non-scaling-stroke" pathLength="1000"
+                  d="M0 36H34l6-10 6 20 8-40 9 44 6-18h10l5-6 5 6H300l6-10 6 20 8-40 9 44 6-18h10l5-6 5 6H400"/>
+        </svg>
+        <img class="heart-img" th:src="@{/img/jantung.webp}" alt="" width="831" height="1163" decoding="async" draggable="false">
+        <span class="heart-shadow" aria-hidden="true"></span>
+    </div>
+</div>
+
+</body>
+</html>

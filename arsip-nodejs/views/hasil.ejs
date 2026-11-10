@@ -1,0 +1,85 @@
+<%- include('partials/header') %>
+<% const k = hasil.kesimpulan; const positif = k && k.kode === 'P01'; %>
+<div class="page-head">
+  <div>
+    <h1>Hasil Diagnosa</h1>
+    <p class="muted">
+      Pasien: <b><%= d.nama_pasien %></b><% if (d.umur !== null) { %> (<%= d.umur %> th)<% } %>
+      · Tanggal: <%= d.created_at %>
+      <% if (currentUser.role === 'admin') { %> · Akun: <%= d.nama_user %> (@<%= d.username %>)<% } %>
+    </p>
+  </div>
+  <div class="actions no-print">
+    <button class="btn btn-ghost" onclick="window.print()">Cetak</button>
+    <a class="btn btn-primary" href="/diagnosa">Diagnosa Baru</a>
+  </div>
+</div>
+
+<div class="card result <%= k ? (positif ? 'result-danger' : 'result-ok') : '' %>">
+  <% if (k) { %>
+    <div class="result-main">
+      <div class="gauge" style="--p: <%= k.persen %>"><span><%= persen(k.cf) %></span></div>
+      <div>
+        <div class="muted small">Kesimpulan</div>
+        <h2><%= k.nama %></h2>
+        <p>Tingkat keyakinan: <b><%= persen(k.cf) %></b> (CF = <%= fmt(k.cf) %>) — <b><%= k.interpretasi %></b></p>
+        <% if (k.saran) { %><p class="saran"><b>Saran:</b> <%= k.saran %></p><% } %>
+      </div>
+    </div>
+  <% } else { %>
+    <h2>Tidak dapat disimpulkan</h2>
+    <p>Gejala yang dipilih tidak memiliki bobot keyakinan pakar terhadap hipotesis mana pun.</p>
+  <% } %>
+</div>
+
+<div class="card">
+  <h3>Perbandingan Hipotesis</h3>
+  <% hasil.hasil.forEach((h) => { %>
+    <div class="bar-row">
+      <div class="bar-label"><%= h.kode %> · <%= h.nama %></div>
+      <div class="bar"><div class="bar-fill <%= h.kode === 'P01' ? 'fill-danger' : 'fill-ok' %>" style="width: <%= h.persen %>%"></div></div>
+      <div class="bar-val"><%= persen(h.cf) %></div>
+    </div>
+  <% }) %>
+</div>
+
+<div class="card">
+  <h3>Gejala yang Dipilih</h3>
+  <table class="table">
+    <thead><tr><th>Kode</th><th>Gejala</th><th>Keyakinan User</th><th>CF User</th></tr></thead>
+    <tbody>
+    <% hasil.jawaban.forEach((j) => { %>
+      <tr><td><span class="kode"><%= j.kode %></span></td><td><%= j.nama %></td><td><%= j.label %></td><td><%= fmt(j.cfUser) %></td></tr>
+    <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<% hasil.hasil.filter((h) => h.langkah.length).forEach((h) => { %>
+  <div class="card">
+    <h3>Perhitungan CF: <%= h.nama %></h3>
+    <table class="table">
+      <thead><tr><th>Kode</th><th>CF (User)</th><th>CF (Pakar)</th><th>CF(User) × CF(Pakar)</th></tr></thead>
+      <tbody>
+      <% h.langkah.forEach((l) => { %>
+        <tr><td><span class="kode"><%= l.kode %></span></td><td><%= fmt(l.cfUser) %></td><td><%= fmt(l.cfPakar) %></td><td><b><%= fmt(l.cfHE) %></b></td></tr>
+      <% }) %>
+      </tbody>
+    </table>
+    <h4>CF Combine &nbsp;<code>CF = CFlama + CFbaru × (1 − CFlama)</code></h4>
+    <ol class="steps">
+      <% h.langkah.forEach((l) => { %>
+        <li>
+          IF <%= l.kode %> THEN <%= h.nama %> =
+          <% if (l.cfLama === null) { %>
+            <b><%= fmt(l.cfHasil) %></b>
+          <% } else { %>
+            <%= fmt(l.cfLama) %> + <%= fmt(l.cfHE) %> × (1 − <%= fmt(l.cfLama) %>) = <b><%= fmt(l.cfHasil) %></b>
+          <% } %>
+        </li>
+      <% }) %>
+    </ol>
+    <p>Hasil akhir: CF = <b><%= fmt(h.cf) %></b> → <b><%= persen(h.cf) %></b></p>
+  </div>
+<% }) %>
+<%- include('partials/footer') %>

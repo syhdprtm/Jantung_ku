@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div>
+    <h1>Data Gejala &amp; Bobot CF Pakar</h1>
+    <p class="muted">Bobot keyakinan pakar (CF Pakar) tiap gejala terhadap tiap hipotesis. Nilai 0 = tidak berpengaruh.</p>
+  </div>
+  <a class="btn btn-primary" href="/admin/gejala/tambah">+ Tambah Gejala</a>
+</div>
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Kode</th><th>Gejala</th>
+        <% penyakit.forEach((p) => { %><th class="center" title="<%= p.nama %>">CF <%= p.kode %></th><% }) %>
+        <th class="right">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+    <% gejala.forEach((g) => { %>
+      <tr>
+        <td><span class="kode"><%= g.kode %></span></td>
+        <td><b><%= g.nama %></b><% if (g.keterangan) { %><div class="muted small"><%= g.keterangan %></div><% } %></td>
+        <% penyakit.forEach((p) => { const v = g.bobot[p.id] || 0; %>
+          <td class="center"><span class="cf <%= v ? '' : 'cf-zero' %>"><%= fmt(v) %></span></td>
+        <% }) %>
+        <td class="right nowrap">
+          <a class="btn btn-sm" href="/admin/gejala/<%= g.id %>/edit">Edit</a>
+          <form method="post" action="/admin/gejala/<%= g.id %>/hapus" class="inline" onsubmit="return confirm('Hapus gejala <%= g.kode %>?')">
+            <button class="btn btn-sm btn-danger">Hapus</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  <p class="muted small">
+    Keterangan: <% penyakit.forEach((p, i) => { %><b><%= p.kode %></b> = <%= p.nama %><%= i < penyakit.length - 1 ? ' · ' : '' %><% }) %>
+  </p>
+</div>
+<%- include('../partials/footer') %>

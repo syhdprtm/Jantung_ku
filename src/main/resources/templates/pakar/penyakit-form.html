@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head(${judul})}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main style="max-width:860px;margin:0 auto">
+        <div class="page-head">
+            <div>
+                <p class="eyebrow"><a th:href="@{/pakar/penyakit}">Hipotesis</a> / Formulir</p>
+                <h1 th:text="${judul}">Judul</h1>
+            </div>
+        </div>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+
+        <form th:action="@{${action}}" method="post" class="form">
+            <section class="card form">
+                <div class="grid g-12">
+                    <label class="field s-4"><span>Kode</span>
+                        <input class="input mono" name="kode" th:value="${form['kode']}" required maxlength="15" placeholder="P03">
+                    </label>
+                    <label class="field s-8"><span>Nama hipotesis</span>
+                        <input class="input" name="nama" th:value="${form['nama']}" required maxlength="150">
+                    </label>
+                </div>
+                <div class="field">
+                    <span>Kategori</span>
+                    <div class="seg" role="radiogroup" aria-label="Kategori" style="justify-self:start">
+                        <label><input type="radio" name="kategori" value="RISIKO" th:checked="${form['kategori'] != 'NORMAL'}"><span class="yes">Indikasi penyakit</span></label>
+                        <label><input type="radio" name="kategori" value="NORMAL" th:checked="${form['kategori'] == 'NORMAL'}"><span class="yes">Kondisi normal</span></label>
+                    </div>
+                    <small>Menentukan warna hasil (merah muda untuk risiko, hijau untuk normal).</small>
+                </div>
+                <label class="field"><span>Keterangan</span>
+                    <textarea class="textarea" name="keterangan" th:text="${form['keterangan']}"></textarea>
+                </label>
+                <label class="field"><span>Saran / solusi</span>
+                    <textarea class="textarea" name="saran" th:text="${form['saran']}"></textarea>
+                </label>
+            </section>
+            <div class="actions" style="justify-content:flex-end">
+                <a class="btn ghost" th:href="@{/pakar/penyakit}">Batal</a>
+                <button class="btn" type="submit">Simpan</button>
+            </div>
+        </form>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "Jantungku — Cek Risiko Jantung",
+  "short_name": "Jantungku",
+  "description": "Cek risiko penyakit jantung secara mandiri, dengan hasil dan saran langsung",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#eceef1",
+  "theme_color": "#131417",
+  "icons": [
+    { "src": "/img/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,38 @@
+<%- include('partials/header') %>
+<div class="page-head">
+  <div>
+    <h1><%= title %></h1>
+    <p class="muted"><%= rows.length %> data diagnosa.</p>
+  </div>
+  <% if (!adminView) { %><a class="btn btn-primary" href="/diagnosa">Diagnosa Baru</a><% } %>
+</div>
+<div class="card">
+  <% if (!rows.length) { %>
+    <p class="muted">Belum ada riwayat diagnosa.</p>
+  <% } else { %>
+    <table class="table">
+      <thead>
+        <tr><th>No</th><th>Tanggal</th><% if (adminView) { %><th>Akun</th><% } %><th>Pasien</th><th>Hasil</th><th>CF</th><th class="right">Aksi</th></tr>
+      </thead>
+      <tbody>
+      <% rows.forEach((d, i) => { %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><%= d.created_at %></td>
+          <% if (adminView) { %><td><%= d.nama_user %> <span class="muted">@<%= d.username %></span></td><% } %>
+          <td><%= d.nama_pasien %><% if (d.umur !== null) { %> <span class="muted">(<%= d.umur %> th)</span><% } %></td>
+          <td><%= d.hasil_penyakit || 'Tidak dapat disimpulkan' %></td>
+          <td><b><%= persen(d.hasil_cf) %></b></td>
+          <td class="right nowrap">
+            <a class="btn btn-sm" href="/hasil/<%= d.id %>">Detail</a>
+            <form method="post" action="<%= adminView ? '/admin' : '' %>/riwayat/<%= d.id %>/hapus" class="inline" onsubmit="return confirm('Hapus riwayat diagnosa ini?')">
+              <button class="btn btn-sm btn-danger">Hapus</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+<%- include('partials/footer') %>

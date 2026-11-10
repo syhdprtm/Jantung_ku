@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head(${judul})}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main style="max-width:760px;margin:0 auto">
+        <div class="page-head">
+            <div>
+                <p class="eyebrow"><a th:href="@{/admin/users}">Pengguna</a> / Formulir</p>
+                <h1 th:text="${judul}">Judul</h1>
+            </div>
+        </div>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <div class="alert info" th:if="${diriSendiri}">
+            <svg class="i"><use href="#i-info"/></svg>
+            <span>Ini akun Anda sendiri: username dan role tidak dapat diubah dari sini.</span>
+        </div>
+
+        <form th:action="@{${action}}" method="post" class="form">
+            <section class="card form">
+                <label class="field"><span>Nama lengkap</span>
+                    <input class="input" name="nama" th:value="${form['nama']}" required maxlength="100">
+                </label>
+                <label class="field"><span>Username</span>
+                    <input class="input" name="username" th:value="${form['username']}" required pattern="[A-Za-z0-9_.]{3,30}"
+                           autocomplete="off" th:readonly="${diriSendiri}">
+                </label>
+                <div class="field">
+                    <span>Role</span>
+                    <div class="seg" role="radiogroup" aria-label="Role" style="justify-self:start">
+                        <label><input type="radio" name="role" value="USER" th:checked="${form['role'] != 'ADMIN' and form['role'] != 'PAKAR'}" th:disabled="${diriSendiri}"><span class="yes">Pengguna</span></label>
+                        <label><input type="radio" name="role" value="PAKAR" th:checked="${form['role'] == 'PAKAR'}" th:disabled="${diriSendiri}"><span class="yes">Pakar</span></label>
+                        <label><input type="radio" name="role" value="ADMIN" th:checked="${form['role'] == 'ADMIN'}" th:disabled="${diriSendiri}"><span class="yes">Administrator</span></label>
+                    </div>
+                    <small>Pakar mengelola gejala, bobot CF, rule base, validasi, dan evaluasi. Administrator mengelola pengguna dan riwayat.</small>
+                </div>
+                <label class="field"><span th:text="${baru} ? 'Password' : 'Password baru'">Password</span>
+                    <input class="input" type="password" name="password" minlength="6" th:required="${baru}" autocomplete="new-password">
+                    <small th:unless="${baru}">Kosongkan bila tidak ingin mereset password.</small>
+                </label>
+            </section>
+            <div class="actions" style="justify-content:flex-end">
+                <a class="btn ghost" th:href="@{/admin/users}">Batal</a>
+                <button class="btn" type="submit">Simpan</button>
+            </div>
+        </form>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

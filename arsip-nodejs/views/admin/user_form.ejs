@@ -1,0 +1,27 @@
+<%- include('../partials/header') %>
+<div class="form-box card">
+  <h2><%= title %></h2>
+  <%- include('../partials/errors') %>
+  <form method="post" action="<%= action %>" class="form">
+    <label>Nama Lengkap
+      <input name="nama" value="<%= form.nama || '' %>" required>
+    </label>
+    <label>Username
+      <input name="username" value="<%= form.username || '' %>" required pattern="[A-Za-z0-9_.]{3,30}" autocomplete="off">
+    </label>
+    <label>Role
+      <select name="role">
+        <option value="user" <%= form.role === 'user' ? 'selected' : '' %>>User</option>
+        <option value="admin" <%= form.role === 'admin' ? 'selected' : '' %>>Administrator</option>
+      </select>
+    </label>
+    <label><%= isNew ? 'Password' : 'Password Baru (kosongkan jika tidak diubah)' %>
+      <input type="password" name="password" minlength="6" <%= isNew ? 'required' : '' %> autocomplete="new-password">
+    </label>
+    <div class="actions right">
+      <a class="btn btn-ghost" href="/admin/users">Batal</a>
+      <button class="btn btn-primary">Simpan</button>
+    </div>
+  </form>
+</div>
+<%- include('../partials/footer') %>

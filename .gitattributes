@@ -1,0 +1,6 @@
+# Skrip shell harus LF agar bisa dijalankan di Linux (CI); skrip Windows tetap CRLF.
+mvnw        text eol=lf
+*.sh        text eol=lf
+*.cmd       text eol=crlf
+*.woff2     binary
+*.webp      binary

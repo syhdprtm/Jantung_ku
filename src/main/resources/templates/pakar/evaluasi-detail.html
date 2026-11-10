@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Hasil evaluasi')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow"><a th:href="@{/pakar/evaluasi}">Evaluasi</a> / Detail</p>
+                <h1 th:text="${e.namaFile()}">heart.csv</h1>
+                <p th:text="${e.jumlah()} + ' baris diuji' + (${e.dilewati() > 0} ? ' · ' + ${e.dilewati()} + ' baris dilewati karena tidak valid' : '') + ' · ' + ${@fmt.tanggal(e.createdAt())}">info</p>
+            </div>
+            <div class="actions no-print">
+                <a class="btn light" th:href="@{/pakar/evaluasi/{id}/excel(id=${e.id()})}"><svg class="i"><use href="#i-download"/></svg>Ekspor Excel</a>
+                <button class="btn light" type="button" data-cetak><svg class="i"><use href="#i-print"/></svg>Cetak</button>
+            </div>
+        </div>
+
+        <!-- grafik perbandingan -->
+        <section class="card" style="margin-bottom:16px">
+            <div class="card-head">
+                <span class="chip-icon"><svg class="i"><use href="#i-layers"/></svg></span>
+                <h3>Perbandingan kedua metode</h3>
+            </div>
+            <div class="legend">
+                <span><i class="sw ma"></i>Pemeriksaan klinis (rule base)</span>
+                <span><i class="sw mb"></i>Kuesioner gejala (CF combine)</span>
+            </div>
+            <div th:replace="~{fragments/layout :: perbandinganMetode(${banding})}"></div>
+        </section>
+
+        <!-- metrik kedua metode berdampingan -->
+        <div class="metric-grid">
+            <section class="card" th:each="m, st : ${metrik}" th:classappend="${st.first} ? 'sky' : 'lilac'">
+                <div class="card-head">
+                    <span class="chip-icon"><svg class="i"><use th:attr="href=${m.metode() == 'KLINIS'} ? '#i-branch' : '#i-list'"/></svg></span>
+                    <h3 th:text="${m.namaMetode}">Metode</h3>
+                </div>
+                <div class="row-between" style="align-items:flex-end;flex-wrap:wrap">
+                    <div>
+                        <div class="metric-big"><span data-count-dec th:text="${@fmt.angkaPersen(m.akurasi)}">0</span><small style="font-size:22px">%</small></div>
+                        <div class="small muted" style="margin-top:6px">Akurasi (baris tak tercakup dihitung salah)</div>
+                    </div>
+                    <div class="right">
+                        <b style="font-size:20px" th:text="${@fmt.persen(m.cakupan)}">0%</b>
+                        <div class="small muted">Cakupan data</div>
+                    </div>
+                </div>
+                <div class="metric-list">
+                    <div><span>Akurasi tercakup</span><b th:text="${@fmt.persen(m.akurasiTercakup)}">0</b></div>
+                    <div><span>Presisi</span><b th:text="${@fmt.persen(m.presisi)}">0</b></div>
+                    <div><span>Recall (sensitivitas)</span><b th:text="${@fmt.persen(m.recall)}">0</b></div>
+                    <div><span>Spesifisitas</span><b th:text="${@fmt.persen(m.spesifisitas)}">0</b></div>
+                    <div><span>F1-score</span><b th:text="${@fmt.persen(m.f1)}">0</b></div>
+                    <div><span>Tak tercakup</span><b th:text="${m.takTercakup()}">0</b></div>
+                </div>
+                <div class="cm" aria-label="Confusion matrix">
+                    <span></span><span class="lbl">Prediksi sakit</span><span class="lbl">Prediksi normal</span>
+                    <span class="lbl">Aktual sakit</span>
+                    <div class="cell tp"><b th:text="${m.tp()}">0</b><span>True positive</span></div>
+                    <div class="cell fn"><b th:text="${m.fn()}">0</b><span>False negative</span></div>
+                    <span class="lbl">Aktual normal</span>
+                    <div class="cell fp"><b th:text="${m.fp()}">0</b><span>False positive</span></div>
+                    <div class="cell tn"><b th:text="${m.tn()}">0</b><span>True negative</span></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- statistik per rule -->
+        <section class="card flush mt">
+            <div class="card-head" style="padding:16px 16px 0">
+                <span class="chip-icon"><svg class="i"><use href="#i-branch"/></svg></span>
+                <h3>Kinerja setiap rule</h3>
+            </div>
+            <p class="small muted" style="padding:0 16px 8px;margin-top:-8px">Berapa kali rule terpicu pada dataset dan berapa persen
+                kesimpulannya sesuai label. Rule yang tidak pernah terpicu atau presisinya rendah layak ditinjau ulang bersama pakar.</p>
+            <table class="table">
+                <thead><tr><th>Rule</th><th>THEN</th><th class="right">CF rule</th><th class="right">Terpicu</th><th class="right">Benar</th><th style="width:28%">Presisi rule</th></tr></thead>
+                <tbody>
+                <tr th:each="r : ${rules}">
+                    <td class="main"><span class="code" th:text="${r.ruleKode()}">R1</span></td>
+                    <td data-label="THEN"><span class="tag" th:classappend="${r.kategori() == 'RISIKO'} ? 'risk' : (${r.kategori() == 'NORMAL'} ? 'ok' : '')"
+                                                th:text="${r.penyakitKode() ?: '-'}">P01</span></td>
+                    <td data-label="CF rule" class="right num" th:text="${r.cf() != null} ? ${@fmt.cf(r.cf())} : '-'">0.8</td>
+                    <td data-label="Terpicu" class="right num" th:text="${r.terpicu()}">0</td>
+                    <td data-label="Benar" class="right num" th:text="${r.benar()}">0</td>
+                    <td data-label="Presisi rule">
+                        <div class="row" th:if="${r.terpicu() > 0}">
+                            <div class="bar grow"><i th:classappend="${r.presisi.doubleValue() >= 0.7} ? 'ok' : 'risk'" th:style="'width:' + ${@fmt.lebar(r.presisi)} + '%'"></i></div>
+                            <b class="num small" style="min-width:58px;text-align:right" th:text="${@fmt.persen(r.presisi)}">0%</b>
+                        </div>
+                        <span th:if="${r.terpicu() == 0}" class="tag plain">Tidak pernah terpicu</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- contoh salah prediksi -->
+        <section class="card flush mt">
+            <div class="card-head" style="padding:16px 16px 0">
+                <span class="chip-icon"><svg class="i"><use href="#i-alert"/></svg></span>
+                <h3>Contoh salah prediksi &amp; tak tercakup</h3>
+                <div class="search no-print" style="min-width:220px;margin-left:auto">
+                    <svg class="i"><use href="#i-search"/></svg>
+                    <input class="input" type="search" placeholder="Cari baris / rule" data-filter="#tbl-salah" aria-label="Cari">
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(baris)}" class="empty">Semua baris diprediksi dengan benar.</div>
+            <table class="table" id="tbl-salah" th:unless="${#lists.isEmpty(baris)}">
+                <thead><tr><th>Baris</th><th>Metode</th><th>Aktual</th><th>Prediksi</th><th>Rule</th><th>Data</th></tr></thead>
+                <tbody>
+                <tr th:each="b : ${baris}">
+                    <td class="main num" th:text="'#' + ${b.baris()}">#2</td>
+                    <td data-label="Metode"><span class="tag plain" th:classappend="${b.metode() == 'KLINIS'} ? 'info' : ''"
+                                                  th:text="${b.metode() == 'KLINIS'} ? 'Klinis' : 'Kuesioner'">m</span></td>
+                    <td data-label="Aktual" th:text="${b.aktual() == 1} ? 'Sakit' : 'Normal'">1</td>
+                    <td data-label="Prediksi">
+                        <span class="tag" th:classappend="${b.prediksi() == null} ? '' : (${b.prediksi() == 1} ? 'risk' : 'ok')"
+                              th:text="${b.prediksi() == null} ? 'Tak tercakup' : (${b.prediksi() == 1} ? 'Sakit' : 'Normal')">p</span>
+                    </td>
+                    <td data-label="Rule" class="mono small" th:text="${b.ruleKode() ?: '-'}">R1</td>
+                    <td data-label="Data" class="mono small" style="max-width:420px" th:text="${b.data()}">data</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

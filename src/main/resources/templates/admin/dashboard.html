@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Dashboard admin')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main class="konsol">
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+
+        <header class="konsol-kepala">
+            <div>
+                <p class="konsol-tanggal" th:text="${@fmt.hariIni()}">Senin, 9 November 2026</p>
+                <h1 th:text="${@fmt.sapaan()} + ', ' + ${me.namaDepan()}">Selamat pagi</h1>
+                <p>Ringkasan akun dan pemeriksaan yang masuk ke Jantungku.</p>
+            </div>
+            <div class="actions">
+                <a class="btn light" th:href="@{/admin/users/tambah}"><svg class="i"><use href="#i-plus"/></svg>Tambah pengguna</a>
+                <a class="btn" th:href="@{/admin/riwayat}">Lihat riwayat</a>
+            </div>
+        </header>
+
+        <!-- angka kunci: satu baris, dipisah garis tipis -->
+        <section class="kpi" aria-label="Ringkasan">
+            <a class="kpi-item" th:href="@{/admin/riwayat}">
+                <span class="kpi-label">Total pemeriksaan</span>
+                <b class="kpi-angka" data-count th:text="${jmlDiagnosa}">0</b>
+                <span class="kpi-catatan">sejak sistem dipakai</span>
+            </a>
+            <a class="kpi-item" th:href="@{/admin/users}">
+                <span class="kpi-label">Pengguna</span>
+                <b class="kpi-angka" data-count th:text="${jmlUser}">0</b>
+                <span class="kpi-catatan">akun pasien terdaftar</span>
+            </a>
+            <a class="kpi-item" th:href="@{/admin/users}">
+                <span class="kpi-label">Petugas</span>
+                <b class="kpi-angka" th:text="${jmlPakar + jmlAdmin}">0</b>
+                <span class="kpi-catatan" th:text="${jmlPakar} + ' pakar · ' + ${jmlAdmin} + ' admin'">pakar · admin</span>
+            </a>
+            <div class="kpi-item">
+                <span class="kpi-label">Basis pengetahuan</span>
+                <b class="kpi-angka" th:text="${jmlRule}">0</b>
+                <span class="kpi-catatan" th:text="'aturan · ' + ${jmlGejala} + ' gejala'">aturan · gejala</span>
+            </div>
+        </section>
+
+        <div class="konsol-grid">
+            <!-- tren mingguan -->
+            <section class="panel panel-lebar">
+                <header class="panel-kepala">
+                    <div>
+                        <h2>Pemeriksaan per minggu</h2>
+                        <p>8 minggu terakhir, dipisah menurut hasil.</p>
+                    </div>
+                    <div class="legend">
+                        <span><i class="sw risk"></i>Risiko</span>
+                        <span><i class="sw ok"></i>Normal</span>
+                        <span><i class="sw lain"></i>Tak tersimpulkan</span>
+                    </div>
+                </header>
+                <div class="colchart" role="img" aria-label="Grafik kolom jumlah pemeriksaan per minggu, dipisah per hasil">
+                    <div class="cc-axis"><span th:text="${trenMax}">0</span><span>0</span></div>
+                    <div class="cc-plot">
+                        <div class="cc-col" th:each="t : ${tren}" tabindex="0" th:data-tip="${t.tooltip()}">
+                            <div class="cc-stack" th:if="${t.total() > 0}" th:style="'height:' + ${t.total() * 100.0 / trenMax} + '%'">
+                                <i class="risk" th:if="${t.risiko() > 0}" th:style="'flex-grow:' + ${t.risiko()}"></i>
+                                <i class="ok" th:if="${t.normal() > 0}" th:style="'flex-grow:' + ${t.normal()}"></i>
+                                <i class="lain" th:if="${t.lain() > 0}" th:style="'flex-grow:' + ${t.lain()}"></i>
+                            </div>
+                        </div>
+                        <div class="cc-empty" th:unless="${trenAda}">Belum ada pemeriksaan dalam 8 minggu terakhir.</div>
+                    </div>
+                    <div class="cc-labels"><span th:each="t : ${tren}" th:text="${t.label()}">1 Nov</span></div>
+                </div>
+                <details class="tabel-data">
+                    <summary>Lihat sebagai tabel</summary>
+                    <table class="table">
+                        <thead><tr><th>Minggu mulai</th><th class="right">Risiko</th><th class="right">Normal</th><th class="right">Tak tersimpulkan</th><th class="right">Total</th></tr></thead>
+                        <tbody><tr th:each="t : ${tren}">
+                            <td class="main" th:text="${t.label()}">-</td>
+                            <td data-label="Risiko" class="right num" th:text="${t.risiko()}">0</td>
+                            <td data-label="Normal" class="right num" th:text="${t.normal()}">0</td>
+                            <td data-label="Tak tersimpulkan" class="right num" th:text="${t.lain()}">0</td>
+                            <td data-label="Total" class="right num"><b th:text="${t.total()}">0</b></td>
+                        </tr></tbody>
+                    </table>
+                </details>
+            </section>
+
+            <!-- sebaran hasil: satu batang proporsi + daftar -->
+            <section class="panel">
+                <header class="panel-kepala">
+                    <div>
+                        <h2>Sebaran hasil</h2>
+                        <p th:text="${jmlDiagnosa} + ' pemeriksaan'">0 pemeriksaan</p>
+                    </div>
+                </header>
+                <div th:if="${#lists.isEmpty(sebaran)}" class="empty">Belum ada pemeriksaan.</div>
+                <th:block th:unless="${#lists.isEmpty(sebaran)}">
+                    <div class="proporsi" role="img" aria-label="Proporsi hasil pemeriksaan">
+                        <i th:each="s : ${sebaran}" th:classappend="${s.kategori() == 'RISIKO'} ? 'risk' : (${s.kategori() == 'NORMAL'} ? 'ok' : 'lain')"
+                           th:style="'flex-grow:' + ${s.jumlah()}" tabindex="0" th:data-tip="${s.nama()} + ' · ' + ${s.jumlah()}"></i>
+                    </div>
+                    <ul class="daftar-proporsi">
+                        <li th:each="s : ${sebaran}">
+                            <i class="sw" th:classappend="${s.kategori() == 'RISIKO'} ? 'risk' : (${s.kategori() == 'NORMAL'} ? 'ok' : 'lain')"></i>
+                            <span class="grow" th:text="${s.nama()}">Nama</span>
+                            <b class="num" th:text="${s.jumlah()}">0</b>
+                            <span class="num muted" th:text="${@fmt.bagian(s.jumlah(), jmlDiagnosa)} + '%'">0%</span>
+                        </li>
+                    </ul>
+                </th:block>
+            </section>
+
+            <!-- pemeriksaan terbaru -->
+            <section class="panel panel-penuh">
+                <header class="panel-kepala">
+                    <div>
+                        <h2>Pemeriksaan terbaru</h2>
+                        <p>Enam pemeriksaan terakhir dari semua pengguna.</p>
+                    </div>
+                    <a class="btn light sm" th:href="@{/admin/riwayat}">Semua riwayat</a>
+                </header>
+                <div th:if="${#lists.isEmpty(terakhir)}" class="empty">Belum ada pemeriksaan.</div>
+                <table class="table tabel-ringkas" th:unless="${#lists.isEmpty(terakhir)}">
+                    <thead><tr><th>Pasien</th><th>Akun</th><th>Jenis</th><th>Waktu</th><th>Hasil</th><th class="right">Keyakinan</th></tr></thead>
+                    <tbody>
+                    <tr th:each="d : ${terakhir}" class="baris-tautan" th:attr="data-href=@{/hasil/{id}(id=${d.id()})}">
+                        <td class="main"><a class="title" th:href="@{/hasil/{id}(id=${d.id()})}" th:text="${d.namaPasien()}">Pasien</a></td>
+                        <td data-label="Akun" class="muted" th:text="'@' + ${d.username()}">@user</td>
+                        <td data-label="Jenis" th:text="${d.metodeLabel}">Jenis</td>
+                        <td data-label="Waktu" class="muted nowrap" th:text="${@fmt.tanggal(d.createdAt())}">Tanggal</td>
+                        <td data-label="Hasil"><span class="status" th:classappend="${d.isTersimpulkan()} ? (${d.isRisiko()} ? 'risk' : 'ok') : ''"
+                                                     th:text="${d.isTersimpulkan()} ? (${d.isRisiko()} ? 'Risiko' : 'Normal') : 'Tak tersimpulkan'">Hasil</span></td>
+                        <td data-label="Keyakinan" class="right num"><b th:text="${@fmt.persen(d.hasilCf())}">0%</b></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

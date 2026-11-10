@@ -1,0 +1,51 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div>
+    <h1>Form Diagnosa</h1>
+    <p class="muted">Pilih tingkat keyakinan (CF User) untuk setiap gejala/parameter klinis yang Anda alami.
+      Pilih <b>Tidak</b> bila tidak mengalami.</p>
+  </div>
+</div>
+<%- include('../partials/errors') %>
+
+<form method="post" action="/diagnosa" class="form">
+  <div class="card grid-2">
+    <label>Nama Pasien
+      <input name="nama_pasien" value="<%= form.nama_pasien %>" required>
+    </label>
+    <label>Umur (opsional)
+      <input type="number" name="umur" min="0" max="130" value="<%= form.umur %>">
+    </label>
+  </div>
+
+  <div class="card">
+    <table class="table table-diagnosa">
+      <thead>
+        <tr><th style="width:70px">Kode</th><th>Gejala / Parameter Klinis</th><th style="width:220px">Tingkat Keyakinan</th></tr>
+      </thead>
+      <tbody>
+      <% gejala.forEach((g) => { const val = jawaban[g.id] || 0; %>
+        <tr>
+          <td><span class="kode"><%= g.kode %></span></td>
+          <td>
+            <b><%= g.nama %></b>
+            <% if (g.keterangan) { %><div class="muted small"><%= g.keterangan %></div><% } %>
+          </td>
+          <td>
+            <select name="g_<%= g.id %>" aria-label="Keyakinan <%= g.kode %>">
+              <% CF_USER_OPTIONS.forEach((o) => { %>
+                <option value="<%= o.value %>" <%= o.value === val ? 'selected' : '' %>><%= o.label %> (<%= o.value %>)</option>
+              <% }) %>
+            </select>
+          </td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="actions right">
+    <button type="reset" class="btn btn-ghost">Reset</button>
+    <button class="btn btn-primary">Proses Diagnosa</button>
+  </div>
+</form>
+<%- include('../partials/footer') %>

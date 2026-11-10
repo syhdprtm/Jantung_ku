@@ -1,0 +1,23 @@
+<%- include('partials/header') %>
+<div class="auth-box card">
+  <h2>Daftar Akun User</h2>
+  <p class="muted">Akun yang didaftarkan di sini memiliki role <b>User</b>.</p>
+  <%- include('partials/errors') %>
+  <form method="post" action="/register" class="form">
+    <label>Nama Lengkap
+      <input name="nama" value="<%= form.nama || '' %>" required autofocus>
+    </label>
+    <label>Username
+      <input name="username" value="<%= form.username || '' %>" required pattern="[A-Za-z0-9_.]{3,30}" autocomplete="username">
+    </label>
+    <label>Password
+      <input type="password" name="password" required minlength="6" autocomplete="new-password">
+    </label>
+    <label>Konfirmasi Password
+      <input type="password" name="konfirmasi" required minlength="6" autocomplete="new-password">
+    </label>
+    <button class="btn btn-primary btn-block">Daftar</button>
+  </form>
+  <p class="muted center">Sudah punya akun? <a href="/login">Login</a></p>
+</div>
+<%- include('partials/footer') %>

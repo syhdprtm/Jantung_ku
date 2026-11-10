@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Audit log')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Administrator</p>
+                <h1>Audit log</h1>
+                <p>Jejak setiap perubahan: siapa, kapan, apa yang diubah, beserta nilai sebelum dan sesudahnya.</p>
+            </div>
+        </div>
+
+        <form class="card filter-bar audit-filter" method="get" th:action="@{/admin/audit}" style="margin-bottom:16px">
+            <label class="field grow-2"><span>Cari</span>
+                <span class="search"><svg class="i"><use href="#i-search"/></svg>
+                <input class="input" type="search" name="q" th:value="${q}" placeholder="Username, kode, atau isi perubahan"></span>
+            </label>
+            <label class="field"><span>Data</span>
+                <select class="select" name="entitas">
+                    <option value="">Semua</option>
+                    <option th:each="x : ${daftarEntitas}" th:value="${x}"
+                            th:selected="${entitas == x}" th:text="${x == 'SESI'} ? 'Sesi login' : ${#strings.capitalize(#strings.toLowerCase(x))}">Gejala</option>
+                </select>
+            </label>
+            <div class="filter-act">
+                <button class="btn" type="submit">Terapkan</button>
+                <a class="btn ghost" th:if="${!#strings.isEmpty(q) or !#strings.isEmpty(entitas)}" th:href="@{/admin/audit}">Reset</a>
+            </div>
+        </form>
+
+        <section class="card flush">
+            <div th:if="${#lists.isEmpty(hal.isi())}" class="empty">
+                <span class="chip-icon"><svg class="i i-lg"><use href="#i-shield"/></svg></span>
+                Belum ada catatan audit.
+            </div>
+            <table class="table" th:unless="${#lists.isEmpty(hal.isi())}">
+                <thead><tr><th>Waktu</th><th>Oleh</th><th>Aksi</th><th>Data</th><th>Perubahan</th></tr></thead>
+                <tbody>
+                <tr th:each="a : ${hal.isi()}">
+                    <td class="main nowrap">
+                        <div class="title num" th:text="${@fmt.tanggal(a.waktu())}">Tanggal</div>
+                    </td>
+                    <td data-label="Oleh">
+                        <span th:text="'@' + ${a.username()}">@user</span>
+                        <span class="tag plain" style="margin-left:4px" th:classappend="${a.role() == 'ADMIN'} ? 'dark' : (${a.role() == 'PAKAR'} ? 'lilac' : 'info')"
+                              th:text="${a.role()}">ROLE</span>
+                    </td>
+                    <td data-label="Aksi">
+                        <span class="tag"
+                              th:classappend="${a.aksi() == 'HAPUS' or a.aksi() == 'GAGAL_MASUK' or a.aksi() == 'TERKUNCI'} ? 'risk' : (${a.aksi() == 'TAMBAH' or a.aksi() == 'MASUK'} ? 'ok' : 'info')"
+                              th:text="${a.aksi() == 'GAGAL_MASUK'} ? 'GAGAL MASUK' : ${a.aksi()}">AKSI</span>
+                    </td>
+                    <td data-label="Data">
+                        <span class="small muted" th:text="${a.entitas()}">ENTITAS</span>
+                        <span class="code" th:text="${a.kode()}">D01</span>
+                    </td>
+                    <td data-label="Perubahan" class="audit-diff">
+                        <div th:if="${a.sebelum() != null}" class="diff old"><em>Sebelum</em><span th:text="${a.sebelum()}">lama</span></div>
+                        <div th:if="${a.sesudah() != null}" class="diff new"><em th:text="${a.sebelum() != null} ? 'Sesudah' : 'Data'">Sesudah</em><span th:text="${a.sesudah()}">baru</span></div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <nav class="pager" th:if="${hal.jumlahHalaman > 1}" aria-label="Halaman">
+            <span class="small muted" th:text="${hal.dari} + '–' + ${hal.sampai} + ' dari ' + ${hal.total()}">1–25 dari 40</span>
+            <div class="actions">
+                <a class="btn light sm" th:if="${hal.adaSebelum}"
+                   th:href="'/admin/audit?' + (${qs.isEmpty()} ? '' : ${qs} + '&') + 'halaman=' + ${hal.halaman() - 1}">Sebelumnya</a>
+                <span class="tag plain" th:text="'Halaman ' + ${hal.halaman()} + ' / ' + ${hal.jumlahHalaman}">1/3</span>
+                <a class="btn light sm" th:if="${hal.adaBerikut}"
+                   th:href="'/admin/audit?' + (${qs.isEmpty()} ? '' : ${qs} + '&') + 'halaman=' + ${hal.halaman() + 1}">Berikutnya</a>
+            </div>
+        </nav>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

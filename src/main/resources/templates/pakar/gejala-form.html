@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head(${judul})}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main style="max-width:860px;margin:0 auto">
+        <div class="page-head">
+            <div>
+                <p class="eyebrow"><a th:href="@{/pakar/gejala}">Gejala</a> / Formulir</p>
+                <h1 th:text="${judul}">Judul</h1>
+            </div>
+        </div>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+
+        <form class="form" th:action="@{${action}}" method="post">
+            <section class="card form">
+                <div class="grid g-12">
+                    <label class="field s-4"><span>Kode</span>
+                        <input class="input mono" name="kode" th:value="${form['kode']}" required maxlength="15" placeholder="D14">
+                    </label>
+                    <label class="field s-8"><span>Nama gejala</span>
+                        <input class="input" name="nama" th:value="${form['nama']}" required maxlength="150">
+                    </label>
+                </div>
+                <label class="field"><span>Keterangan</span>
+                    <textarea class="textarea" name="keterangan" th:text="${form['keterangan']}"></textarea>
+                </label>
+            </section>
+
+            <section class="card">
+                <div class="card-head">
+                    <span class="chip-icon"><svg class="i"><use href="#i-calc"/></svg></span>
+                    <h3>Bobot CF pakar</h3>
+                </div>
+                <p class="small muted" style="margin:-6px 0 18px">Isi 0–1. Acuan: Definitely 1 · Almost certainly 0,8 · Probably 0,6 · Maybe 0,4 · Unknown 0,2 · No 0.</p>
+                <div class="grid g-2">
+                    <label class="field" th:each="p : ${penyakit}">
+                        <span><span class="tag" th:classappend="${p.isRisiko()} ? 'risk' : 'ok'" th:text="${p.kode()}">P01</span>&nbsp; <th:block th:text="${p.nama()}">Nama</th:block></span>
+                        <input class="input num" th:name="'cf_' + ${p.id()}" inputmode="decimal" list="istilah-cf"
+                               th:value="${form['bobot'][p.id()] != null ? form['bobot'][p.id()] : '0'}">
+                    </label>
+                </div>
+                <datalist id="istilah-cf">
+                    <option value="1">Definitely</option>
+                    <option value="0.8">Almost certainly</option>
+                    <option value="0.6">Probably</option>
+                    <option value="0.4">Maybe</option>
+                    <option value="0.2">Unknown</option>
+                    <option value="0">No</option>
+                </datalist>
+            </section>
+
+            <div class="actions" style="justify-content:flex-end">
+                <a class="btn ghost" th:href="@{/pakar/gejala}">Batal</a>
+                <button class="btn" type="submit">Simpan</button>
+            </div>
+        </form>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

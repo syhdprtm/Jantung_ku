@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Masuk')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: pubbar('masuk')}"></header>
+
+    <main class="auth">
+        <section class="auth-side card mint">
+            <span class="tag on-tint plain" style="color:var(--mint-ink);align-self:flex-start">Selamat datang kembali</span>
+            <div class="heart-slot">
+                <div><div th:replace="~{fragments/layout :: heart('ok')}"></div></div>
+            </div>
+            <div>
+                <h2 style="font-size:28px">Pantau kesehatan jantung Anda dari waktu ke waktu.</h2>
+                <p style="margin-top:10px;color:var(--ink-2)">Masuk untuk melakukan pemeriksaan baru, melihat riwayat,
+                    dan mengunduh laporan hasil Anda.</p>
+            </div>
+        </section>
+
+        <section class="auth-form card">
+            <h1>Masuk</h1>
+            <p class="muted" style="margin:6px 0 24px">Gunakan username dan password akun Anda.</p>
+
+            <div class="alert ok" th:if="${sukses}" role="status"><svg class="i"><use href="#i-check"/></svg><span th:text="${sukses}"></span></div>
+            <div class="alert ok" th:if="${param.keluar}" role="status"><svg class="i"><use href="#i-check"/></svg><span>Anda telah keluar. Sampai jumpa lagi.</span></div>
+            <div class="alert ok" th:if="${param.dihapus}" role="status"><svg class="i"><use href="#i-check"/></svg><span>Akun dan seluruh riwayat Anda telah dihapus.</span></div>
+            <div class="alert err" th:if="${param.terkunci}" role="alert"><svg class="i"><use href="#i-lock"/></svg><span>Akun dikunci sementara karena terlalu banyak percobaan. Coba lagi dalam 15 menit.</span></div>
+            <div class="alert err" th:if="${param.gagal}" role="alert"><svg class="i"><use href="#i-info"/></svg><span>Username atau password tidak cocok. Periksa kembali, lalu coba lagi.</span></div>
+
+            <form class="form" th:action="@{/login}" method="post">
+                <label class="field"><span>Username</span>
+                    <input class="input" name="username" required autofocus autocomplete="username" autocapitalize="none" spellcheck="false">
+                </label>
+                <label class="field"><span>Password</span>
+                    <span class="pw">
+                        <input class="input" type="password" name="password" required autocomplete="current-password">
+                        <button type="button" class="pw-toggle" data-lihat-pw aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button>
+                    </span>
+                </label>
+                <button class="btn block" type="submit" data-memuat="Memeriksa…">Masuk</button>
+            </form>
+            <p class="muted small center" style="margin-top:16px">Lupa password? Hubungi administrator untuk mengatur ulang.</p>
+            <p class="muted small center" style="margin-top:8px">Belum punya akun? <a class="tautan" th:href="@{/daftar}">Buat akun gratis</a></p>
+            <p class="center" style="margin-top:20px"><a class="btn ghost sm" th:href="@{/}"><svg class="i"><use href="#i-left"/></svg>Kembali ke beranda</a></p>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+</body>
+</html>

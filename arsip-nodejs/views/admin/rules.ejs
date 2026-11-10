@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div>
+    <h1>Rule Base</h1>
+    <p class="muted">Aturan IF–THEN hasil analisis pohon keputusan (Tabel 5.4) beserta CF Rule.</p>
+  </div>
+  <a class="btn btn-primary" href="/admin/rules/tambah">+ Tambah Rule</a>
+</div>
+<div class="card">
+  <input type="search" id="cari" class="search" placeholder="Cari rule (kode, kondisi, keterangan)…" oninput="filterRules(this.value)">
+  <table class="table" id="tbl-rules">
+    <thead><tr><th>Kode</th><th>Aturan IF (Gejala)</th><th>THEN</th><th class="center">CF</th><th>Keterangan</th><th class="right">Aksi</th></tr></thead>
+    <tbody>
+    <% rules.forEach((r) => { %>
+      <tr>
+        <td><span class="kode"><%= r.kode %></span></td>
+        <td class="mono small">IF <%= r.kondisi %></td>
+        <td><span class="badge <%= r.kode_penyakit === 'P01' ? 'badge-danger' : 'badge-ok' %>"><%= r.nama_penyakit || '-' %></span></td>
+        <td class="center"><b><%= fmt(r.cf) %></b></td>
+        <td class="small"><%= r.keterangan %></td>
+        <td class="right nowrap">
+          <a class="btn btn-sm" href="/admin/rules/<%= r.id %>/edit">Edit</a>
+          <form method="post" action="/admin/rules/<%= r.id %>/hapus" class="inline" onsubmit="return confirm('Hapus rule <%= r.kode %>?')">
+            <button class="btn btn-sm btn-danger">Hapus</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+</div>
+<script>
+  function filterRules(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('#tbl-rules tbody tr').forEach(function (tr) {
+      tr.style.display = tr.textContent.toLowerCase().indexOf(q) === -1 ? 'none' : '';
+    });
+  }
+</script>
+<%- include('../partials/footer') %>

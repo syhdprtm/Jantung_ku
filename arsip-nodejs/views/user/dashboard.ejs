@@ -1,0 +1,43 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div>
+    <h1>Halo, <%= currentUser.nama %></h1>
+    <p class="muted">Lakukan diagnosa untuk mengetahui tingkat keyakinan kondisi jantung Anda.</p>
+  </div>
+  <a class="btn btn-primary" href="/diagnosa">Mulai Diagnosa</a>
+</div>
+
+<div class="grid-3">
+  <div class="stat card"><b><%= jumlah %></b><span>Total diagnosa Anda</span></div>
+  <div class="stat card">
+    <b><%= terakhir[0] ? persen(terakhir[0].hasil_cf) : '-' %></b>
+    <span>CF diagnosa terakhir</span>
+  </div>
+  <div class="stat card">
+    <b class="small"><%= terakhir[0] ? (terakhir[0].hasil_penyakit || 'Tidak dapat disimpulkan') : '-' %></b>
+    <span>Hasil terakhir</span>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Diagnosa Terakhir</h3>
+  <% if (!terakhir.length) { %>
+    <p class="muted">Belum ada riwayat diagnosa. <a href="/diagnosa">Mulai diagnosa pertama Anda</a>.</p>
+  <% } else { %>
+    <table class="table">
+      <thead><tr><th>Tanggal</th><th>Pasien</th><th>Hasil</th><th>CF</th><th></th></tr></thead>
+      <tbody>
+      <% terakhir.forEach((d) => { %>
+        <tr>
+          <td><%= d.created_at %></td>
+          <td><%= d.nama_pasien %></td>
+          <td><%= d.hasil_penyakit || 'Tidak dapat disimpulkan' %></td>
+          <td><b><%= persen(d.hasil_cf) %></b></td>
+          <td><a class="btn btn-sm" href="/hasil/<%= d.id %>">Detail</a></td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+<%- include('../partials/footer') %>

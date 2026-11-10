@@ -1,0 +1,31 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div>
+    <h1>Data Penyakit / Hipotesis</h1>
+    <p class="muted">Hipotesis kesimpulan sistem pakar beserta saran penanganannya.</p>
+  </div>
+  <a class="btn btn-primary" href="/admin/penyakit/tambah">+ Tambah Penyakit</a>
+</div>
+<div class="card">
+  <table class="table">
+    <thead><tr><th>Kode</th><th>Nama</th><th>Keterangan &amp; Saran</th><th class="center">Gejala</th><th class="center">Rule</th><th class="right">Aksi</th></tr></thead>
+    <tbody>
+    <% penyakit.forEach((p) => { %>
+      <tr>
+        <td><span class="kode"><%= p.kode %></span></td>
+        <td><b><%= p.nama %></b></td>
+        <td><div><%= p.keterangan %></div><div class="muted small"><b>Saran:</b> <%= p.saran || '-' %></div></td>
+        <td class="center"><%= p.jml_gejala %></td>
+        <td class="center"><%= p.jml_rule %></td>
+        <td class="right nowrap">
+          <a class="btn btn-sm" href="/admin/penyakit/<%= p.id %>/edit">Edit</a>
+          <form method="post" action="/admin/penyakit/<%= p.id %>/hapus" class="inline" onsubmit="return confirm('Hapus <%= p.kode %>? Bobot gejala terkait juga akan terhapus.')">
+            <button class="btn btn-sm btn-danger">Hapus</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('../partials/footer') %>

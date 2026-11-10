@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Pengguna')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Administrator</p>
+                <h1>Manajemen pengguna</h1>
+                <p>Kelola akun administrator, pakar, dan pengguna. Menghapus akun juga menghapus seluruh riwayat pemeriksaannya.</p>
+            </div>
+            <div class="actions">
+                <a class="btn" th:href="@{/admin/users/tambah}"><svg class="i"><use href="#i-plus"/></svg>Tambah pengguna</a>
+            </div>
+        </div>
+
+        <section class="card flush">
+            <table class="table">
+                <thead>
+                <tr><th>Nama</th><th>Role</th><th class="right">Diagnosa</th><th>Terdaftar</th><th></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${users}" th:with="self=${u.id() == me.id()}">
+                    <td class="main">
+                        <div class="row">
+                            <span class="avatar sm" th:classappend="${u.isAdmin()} ? 'admin' : (${u.isPakar()} ? 'pakar' : '')" th:text="${u.inisial()}">AB</span>
+                            <div>
+                                <div class="title"><th:block th:text="${u.nama()}">Nama</th:block>
+                                    <span th:if="${self}" class="muted small" style="font-weight:500">(Anda)</span></div>
+                                <div class="desc" th:text="'@' + ${u.username()}">@user</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td data-label="Role">
+                        <span class="tag plain" th:classappend="${u.isAdmin()} ? 'dark' : (${u.isPakar()} ? 'lilac' : 'info')" th:text="${u.roleLabel}">Role</span>
+                        <span class="tag risk" th:if="${u.isTerkunci()}" th:title="'Terkunci sampai ' + ${@fmt.tanggal(u.terkunciSampai())}"><svg class="i i-sm"><use href="#i-lock"/></svg>Terkunci</span>
+                    </td>
+                    <td data-label="Diagnosa" class="right num" th:text="${u.jmlDiagnosa()}">0</td>
+                    <td data-label="Terdaftar" class="nowrap" th:text="${@fmt.tanggalPendek(u.createdAt())}">Tanggal</td>
+                    <td class="act">
+                        <form th:if="${u.isTerkunci()}" method="post" th:action="@{/admin/users/{id}/buka-kunci(id=${u.id()})}">
+                            <button class="btn light sm" type="submit" title="Buka kunci akun"><svg class="i"><use href="#i-lock"/></svg>Buka kunci</button>
+                        </form>
+                        <a class="icon-btn sm" th:href="@{/admin/users/{id}/edit(id=${u.id()})}" title="Edit"><svg class="i"><use href="#i-edit"/></svg></a>
+                        <form th:unless="${self}" method="post" th:action="@{/admin/users/{id}/hapus(id=${u.id()})}"
+                              th:attr="data-confirm='Hapus @' + ${u.username()} + ' beserta seluruh riwayat pemeriksaannya? Tindakan ini tidak dapat dibatalkan.'">
+                            <button class="icon-btn sm danger" type="submit" title="Hapus"><svg class="i"><use href="#i-trash"/></svg></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

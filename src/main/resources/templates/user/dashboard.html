@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Beranda')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Beranda</p>
+                <h1 th:text="'Halo, ' + ${me.namaDepan()}">Halo</h1>
+                <p>Pantau hasil pemeriksaan Anda dan mulai pemeriksaan baru kapan saja.</p>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/layout :: peringatan}"></div>
+
+        <div class="grid g-12">
+            <!-- hasil terakhir -->
+            <th:block th:with="d=${#lists.isEmpty(terakhir)} ? null : ${terakhir[0]}">
+                <a th:if="${d != null}" th:href="@{/hasil/{id}(id=${d.id()})}" class="card link s-5"
+                   th:classappend="${d.isTersimpulkan()} ? (${d.isRisiko()} ? 'blush' : 'mint') : ''">
+                    <div class="card-head">
+                        <span class="chip-icon"><svg class="i"><use href="#i-heart"/></svg></span>
+                        <h3>Hasil terakhir</h3>
+                        <span class="icon-btn sm"><svg class="i"><use href="#i-arrow"/></svg></span>
+                    </div>
+                    <div class="row-between" style="align-items:flex-end;flex-wrap:wrap">
+                        <div>
+                            <p style="font-weight:650;font-size:18px;letter-spacing:-.01em"
+                               th:text="${d.isTersimpulkan()} ? ${d.hasilNama()} : 'Tidak dapat disimpulkan'">Hasil</p>
+                            <p class="small muted" style="margin-top:4px" th:text="${d.namaPasien()} + ' · ' + ${@fmt.tanggal(d.createdAt())}">Pasien</p>
+                        </div>
+                        <div th:replace="~{fragments/layout :: gauge(${d.hasilCf()}, ${d.isRisiko()} ? 'risk sm' : 'ok sm', 'keyakinan')}"></div>
+                    </div>
+                </a>
+                <div th:if="${d == null}" class="card s-5">
+                    <div class="card-head">
+                        <span class="chip-icon"><svg class="i"><use href="#i-heart"/></svg></span>
+                        <h3>Hasil terakhir</h3>
+                    </div>
+                    <p class="muted">Belum ada pemeriksaan. Hasil pertama Anda akan tampil di sini.</p>
+                </div>
+            </th:block>
+
+            <div class="card sky stat s-3">
+                <span class="stat-label"><span class="chip-icon"><svg class="i"><use href="#i-clipboard"/></svg></span>Total pemeriksaan</span>
+                <span class="stat-value"><span data-count th:text="${jumlah}">0</span><small>kali</small></span>
+            </div>
+
+            <div class="card dark s-4" style="display:flex;flex-direction:column;justify-content:space-between;gap:24px;position:relative;overflow:hidden">
+                <div class="cta-heart"><div th:replace="~{fragments/layout :: heart('on-dark')}"></div></div>
+                <div class="card-head" style="margin:0;position:relative;z-index:1">
+                    <span class="chip-icon"><svg class="i"><use href="#i-pulse"/></svg></span>
+                    <h3>Pemeriksaan baru</h3>
+                </div>
+                <p class="muted" style="max-width:58%;position:relative;z-index:1">Jawab 13 pertanyaan singkat tentang gejala Anda. Butuh sekitar 2 menit.</p>
+                <a class="btn white" th:href="@{/diagnosa}" style="align-self:flex-start;position:relative;z-index:1">Mulai sekarang <svg class="i"><use href="#i-right"/></svg></a>
+            </div>
+
+            <!-- riwayat -->
+            <section class="card s-12">
+                <div class="card-head">
+                    <span class="chip-icon"><svg class="i"><use href="#i-clock"/></svg></span>
+                    <h3>Riwayat terbaru</h3>
+                    <a class="btn light sm" th:href="@{/riwayat}">Lihat semua</a>
+                </div>
+                <div th:if="${#lists.isEmpty(terakhir)}" class="empty">Belum ada riwayat pemeriksaan.</div>
+                <div class="list">
+                    <a class="list-item" th:each="d : ${terakhir}" th:href="@{/hasil/{id}(id=${d.id()})}">
+                        <span class="chip-icon" th:style="${d.isRisiko()} ? 'background:var(--blush);color:var(--blush-ink)' : 'background:var(--mint);color:var(--mint-ink)'">
+                            <svg class="i"><use href="#i-heart"/></svg>
+                        </span>
+                        <div class="grow">
+                            <div class="t" th:text="${d.namaPasien()}">Pasien</div>
+                            <div class="s" th:text="${@fmt.tanggal(d.createdAt())}">Tanggal</div>
+                        </div>
+                        <span class="tag hide-sm" th:classappend="${d.isRisiko()} ? 'risk' : 'ok'"
+                              th:text="${d.isTersimpulkan()} ? (${d.isRisiko()} ? 'Risiko' : 'Normal') : '—'">Hasil</span>
+                        <b class="num" style="min-width:72px;text-align:right" th:text="${@fmt.persen(d.hasilCf())}">0%</b>
+                    </a>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

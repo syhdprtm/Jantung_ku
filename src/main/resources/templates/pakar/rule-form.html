@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head(${judul})}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main style="max-width:860px;margin:0 auto">
+        <div class="page-head">
+            <div>
+                <p class="eyebrow"><a th:href="@{/pakar/rules}">Rule base</a> / Formulir</p>
+                <h1 th:text="${judul}">Judul</h1>
+            </div>
+        </div>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+
+        <form th:action="@{${action}}" method="post" class="form">
+            <section class="card form">
+                <div class="grid g-12">
+                    <label class="field s-4"><span>Kode</span>
+                        <input class="input mono" name="kode" th:value="${form['kode']}" required maxlength="15" placeholder="R50">
+                    </label>
+                    <label class="field s-4"><span>CF rule (0–1)</span>
+                        <input class="input num" name="cf" th:value="${form['cf']}" required inputmode="decimal" placeholder="0.8">
+                    </label>
+                    <label class="field s-4"><span>Maka (THEN)</span>
+                        <select class="select" name="penyakitId" required>
+                            <option value="">Pilih hipotesis</option>
+                            <option th:each="p : ${penyakit}" th:value="${p.id()}" th:text="${p.kode()} + ' — ' + ${p.nama()}"
+                                    th:selected="${form['penyakitId'] == p.id().toString()}">P01</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="field"><span>Jika (IF)</span>
+                    <textarea class="textarea mono" name="kondisi" required placeholder="ST Slope Up AND Oldpeak > 2.4" th:text="${form['kondisi']}"></textarea>
+                    <small>Pisahkan setiap syarat dengan kata AND.</small>
+                </label>
+                <label class="field"><span>Keterangan</span>
+                    <textarea class="textarea" name="keterangan" th:text="${form['keterangan']}"></textarea>
+                </label>
+            </section>
+            <div class="actions" style="justify-content:flex-end">
+                <a class="btn ghost" th:href="@{/pakar/rules}">Batal</a>
+                <button class="btn" type="submit">Simpan</button>
+            </div>
+        </form>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

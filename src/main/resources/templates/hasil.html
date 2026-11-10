@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Hasil pemeriksaan')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell" th:with="d=${h.diagnosa()}, k=${h.kesimpulan()}">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <a class="crumb no-print" th:href="${me.isAdmin()} ? @{/admin/riwayat} : @{/riwayat}">
+            <svg class="i"><use href="#i-left"/></svg>
+            <span th:text="${me.isAdmin()} ? 'Riwayat semua pengguna' : 'Riwayat'">Riwayat</span>
+        </a>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow" th:text="${d.metodeLabel} + ' · ' + ${@fmt.tanggal(d.createdAt())}">Hasil</p>
+                <h1 th:text="${d.namaPasien()}">Nama pasien</h1>
+            </div>
+            <div class="actions no-print">
+                <a class="btn light" th:href="@{/hasil/{id}/pdf(id=${d.id()})}"><svg class="i"><use href="#i-file"/></svg>Unduh PDF</a>
+                <button class="btn light" type="button" data-cetak><svg class="i"><use href="#i-print"/></svg>Cetak</button>
+                <a class="btn" th:href="${d.isKlinis()} ? @{/diagnosa/klinis} : @{/diagnosa}"><svg class="i"><use href="#i-plus"/></svg>Pemeriksaan baru</a>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/layout :: peringatan}"></div>
+
+        <div class="grid g-12">
+            <!-- kesimpulan -->
+            <section class="result card s-8" th:classappend="${k != null} ? (${k.isRisiko()} ? 'blush' : 'mint') : ''">
+                <div>
+                    <th:block th:if="${k != null}">
+                        <span class="tag on-tint" th:classappend="${k.isRisiko()} ? 'risk' : 'ok'" th:text="${k.interpretasi}">Hampir pasti</span>
+                        <h2 th:text="${k.nama()}">Kesimpulan</h2>
+                        <p class="arti" th:text="${k.arti}">Arti hasil</p>
+                        <p class="small muted">Tingkat keyakinan sistem <b th:text="${@fmt.persen(k.cf())}">0%</b></p>
+                    </th:block>
+                    <th:block th:if="${k == null}">
+                        <span class="tag">Tidak ada kesimpulan</span>
+                        <h2>Belum dapat disimpulkan</h2>
+                        <p class="arti" th:unless="${d.isKlinis()}">Jawaban Anda tidak menunjukkan gejala yang dikenali sistem,
+                            sehingga sistem tidak mengambil kesimpulan.</p>
+                        <p class="arti" th:if="${d.isKlinis()}">Data pemeriksaan ini tidak cocok dengan aturan mana pun dari
+                            pakar, sehingga sistem tidak mengambil kesimpulan.</p>
+                    </th:block>
+                </div>
+                <div class="result-visual">
+                    <div th:replace="~{fragments/layout :: heart(${k == null} ? '' : (${k.isRisiko()} ? 'risk' : 'ok'))}"></div>
+                    <div th:replace="~{fragments/layout :: gauge(${d.hasilCf()}, ${k != null and k.isRisiko()} ? 'risk' : 'ok', 'tingkat keyakinan')}"></div>
+                </div>
+            </section>
+
+            <!-- info pasien -->
+            <section class="card s-4">
+                <div class="card-head">
+                    <span class="chip-icon"><svg class="i"><use href="#i-user"/></svg></span>
+                    <h3>Data pemeriksaan</h3>
+                </div>
+                <dl class="meta" style="margin:0">
+                    <div><dt>Pasien</dt><dd th:text="${d.namaPasien()}">-</dd></div>
+                    <div><dt>Umur</dt><dd th:text="${d.umur() != null} ? ${d.umur()} + ' tahun' : '-'">-</dd></div>
+                    <div th:if="${d.jenisKelaminLabel != null}"><dt>Jenis kelamin</dt><dd th:text="${d.jenisKelaminLabel}">-</dd></div>
+                    <th:block th:if="${d.adaDataFisik}">
+                        <div th:if="${d.tinggiCm() != null}"><dt>Tinggi / berat</dt>
+                            <dd th:text="${@fmt.angka(d.tinggiCm())} + ' cm · ' + ${@fmt.angka(d.beratKg())} + ' kg'">-</dd></div>
+                        <div th:if="${d.imt != null}"><dt>IMT</dt>
+                            <dd><th:block th:text="${@fmt.angka(d.imt)}">22,5</th:block>
+                                <span class="tag sm" th:classappend="${d.imtNormal} ? 'ok' : 'risk'" th:text="${d.kategoriImt}">Normal</span></dd></div>
+                        <div th:if="${d.tekananTeks != null}"><dt>Tekanan darah</dt>
+                            <dd><th:block th:text="${d.tekananTeks} + ' mmHg'">120/80</th:block>
+                                <span class="tag sm" th:classappend="${d.tekananNormal} ? 'ok' : 'risk'" th:text="${d.kategoriTekanan}">Normal</span></dd></div>
+                    </th:block>
+                    <div><dt>Tanggal</dt><dd th:text="${@fmt.tanggal(d.createdAt())}">-</dd></div>
+                    <div><dt>Jenis</dt><dd th:text="${d.metodeLabel}">-</dd></div>
+                    <div th:unless="${d.isKlinis()}"><dt>Gejala dijawab</dt><dd th:text="${#lists.size(h.jawaban())}">0</dd></div>
+                    <div th:if="${me.isPetugas()}"><dt>Akun</dt><dd th:text="${d.namaUser()} + ' (@' + ${d.username()} + ')'">-</dd></div>
+                </dl>
+            </section>
+
+            <!-- langkah selanjutnya -->
+            <section class="card s-12 langkah-lanjut">
+                <div class="card-head">
+                    <span class="chip-icon"><svg class="i"><use href="#i-check"/></svg></span>
+                    <h3>Langkah selanjutnya</h3>
+                </div>
+                <ul class="saran-list">
+                    <li th:if="${k != null and k.saran() != null and !#strings.isEmpty(k.saran())}" th:text="${k.saran()}">Saran pakar</li>
+                    <th:block th:if="${k != null and k.isRisiko()}">
+                        <li>Konsultasikan hasil ini ke dokter atau puskesmas terdekat. Bawa laporan PDF agar dokter dapat melihat jawaban Anda.</li>
+                        <li>Bila Anda merasakan nyeri dada hebat, sesak napas, atau keringat dingin, segera ke IGD atau hubungi <b>119</b>.</li>
+                    </th:block>
+                    <th:block th:if="${k != null and !k.isRisiko()}">
+                        <li>Pertahankan pola hidup sehat: aktif bergerak, makan seimbang, tidak merokok, dan tidur cukup.</li>
+                        <li>Lakukan pemeriksaan tekanan darah, gula darah, dan kolesterol secara rutin.</li>
+                    </th:block>
+                    <li th:if="${k == null}">Bila Anda merasa tidak sehat atau memiliki keluhan di dada, tetap periksakan diri ke dokter.</li>
+                </ul>
+            </section>
+
+            <!-- jawaban (kuesioner) -->
+            <section class="card s-12" th:unless="${d.isKlinis()}">
+                <div class="card-head">
+                    <span class="chip-icon"><svg class="i"><use href="#i-list"/></svg></span>
+                    <h3>Jawaban Anda</h3>
+                    <span class="tag plain" th:text="${#lists.size(h.jawaban())} + ' gejala'">0</span>
+                </div>
+                <div th:if="${#lists.isEmpty(h.jawaban())}" class="empty">Semua gejala dijawab “Tidak tahu”.</div>
+                <div class="list">
+                    <div class="list-item" th:each="j : ${h.jawaban()}">
+                        <span class="code" th:text="${j.gejalaKode()}">D01</span>
+                        <span class="grow t" th:text="${j.gejalaNama()}">Gejala</span>
+                        <span class="tag plain" th:text="${j.label}">Yakin</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- data klinis -->
+            <section class="card s-12" th:if="${d.isKlinis() and h.klinis() != null}">
+                <div class="card-head">
+                    <span class="chip-icon"><svg class="i"><use href="#i-clipboard"/></svg></span>
+                    <h3>Data klinis pasien</h3>
+                </div>
+                <dl class="meta cols" style="margin:0">
+                    <div th:each="e : ${h.klinis().tampil()}"><dt th:text="${e.key.label}">Label</dt><dd th:text="${e.value}">nilai</dd></div>
+                </dl>
+            </section>
+        </div>
+
+        <!-- detail teknis: tertutup untuk pengguna, terbuka untuk admin/pakar -->
+        <details class="teknis" th:open="${me.isPetugas()}">
+            <summary>
+                <span class="chip-icon"><svg class="i"><use href="#i-calc"/></svg></span>
+                <span class="grow"><b>Lihat cara sistem menghitung</b>
+                    <span class="small muted">Rincian perhitungan Certainty Factor dan aturan yang dipakai</span></span>
+                <svg class="i chev"><use href="#i-right"/></svg>
+            </summary>
+
+            <div class="grid g-12">
+                <!-- perbandingan -->
+                <section class="card s-12">
+                    <div class="card-head">
+                        <span class="chip-icon"><svg class="i"><use href="#i-layers"/></svg></span>
+                        <h3>Perbandingan hipotesis</h3>
+                    </div>
+                    <div class="bars">
+                        <div class="bar-row" th:each="x : ${h.hasil()}">
+                            <div class="bar-top">
+                                <span><span class="code" th:text="${x.kode()}">P01</span>&nbsp; <th:block th:text="${x.nama()}">Nama</th:block></span>
+                                <b><th:block th:text="${@fmt.persen(x.cf())}">0%</th:block> <span class="muted mono" style="font-weight:400" th:text="'CF ' + ${@fmt.cf(x.cf())}">CF</span></b>
+                            </div>
+                            <div class="bar"><i th:classappend="${x.isRisiko()} ? 'risk' : 'ok'" th:style="'width:' + ${@fmt.lebar(x.cf())} + '%'"></i></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- aturan yang terpenuhi (pemeriksaan klinis) -->
+                <section class="card s-12" th:if="${d.isKlinis()}">
+                    <div class="card-head">
+                        <span class="chip-icon"><svg class="i"><use href="#i-branch"/></svg></span>
+                        <h3>Aturan pakar yang terpenuhi</h3>
+                        <span class="tag plain" th:text="${#lists.size(h.terpicu())} + ' aturan'">0</span>
+                    </div>
+                    <p class="small muted" style="margin:-6px 0 16px">Sistem memeriksa setiap aturan pakar (IF–THEN) satu per satu.
+                        Sebuah aturan berlaku bila seluruh syaratnya terpenuhi oleh data pasien. Karena data berasal dari hasil
+                        pengukuran, keyakinan data dianggap 1, sehingga CF(H,E) = 1 × CF aturan.</p>
+                    <div th:if="${#lists.isEmpty(h.terpicu())}" class="alert info" style="margin:0">
+                        <svg class="i"><use href="#i-info"/></svg>
+                        <span>Tidak ada aturan yang seluruh syaratnya terpenuhi oleh data ini.</span>
+                    </div>
+                    <div class="why">
+                        <article class="why-rule" th:each="t : ${h.terpicu()}">
+                            <div class="head">
+                                <span class="code" th:text="${t.rule().kode()}">R1</span>
+                                <b>THEN</b>
+                                <span class="tag" th:classappend="${t.rule().penyakitKode() == 'P01'} ? 'risk' : 'ok'"
+                                      th:text="${t.rule().penyakitKode()}">P01</span>
+                                <span class="cf-pill on" th:text="'CF ' + ${@fmt.cf(t.rule().cf())}">0.8</span>
+                            </div>
+                            <ul>
+                                <li th:each="c : ${t.cek()}">
+                                    <span class="ok-ico" th:classappend="${c.cocok()} ? '' : 'no'"><svg class="i"><use th:attr="href=${c.cocok()} ? '#i-check' : '#i-x'"/></svg></span>
+                                    <code class="mono" th:text="${c.syarat().teks()}">Max HR > 185</code>
+                                    <span class="small">pasien: <b th:text="${c.nilaiPasien()}">190</b></span>
+                                </li>
+                            </ul>
+                            <p class="small muted" style="margin-top:10px" th:text="${t.rule().keterangan()}">Keterangan</p>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- pembanding: kuesioner gejala dari data yang sama -->
+                <section class="card s-12" th:if="${d.isKlinis() and h.pembanding() != null}">
+                    <div class="card-head">
+                        <span class="chip-icon"><svg class="i"><use href="#i-layers"/></svg></span>
+                        <h3>Sebagai pembanding: hasil kuesioner gejala</h3>
+                        <span class="tag info plain" th:text="${h.pembanding().kesimpulan() != null} ? ${h.pembanding().kesimpulan().nama()} : 'Tidak dapat disimpulkan'">-</span>
+                    </div>
+                    <p class="small muted" style="margin:-6px 0 16px">Gejala D01–D13 diturunkan otomatis dari data klinis (CF user = 1),
+                        lalu dihitung dengan bobot CF pakar yang berlaku saat ini.</p>
+                    <div class="calc-grid">
+                        <div class="bars">
+                            <div class="bar-row" th:each="x : ${h.pembanding().hasil()}">
+                                <div class="bar-top">
+                                    <span><span class="code" th:text="${x.kode()}">P01</span>&nbsp; <th:block th:text="${x.nama()}">Nama</th:block></span>
+                                    <b th:text="${@fmt.persen(x.cf())}">0%</b>
+                                </div>
+                                <div class="bar"><i th:classappend="${x.isRisiko()} ? 'risk' : 'ok'" th:style="'width:' + ${@fmt.lebar(x.cf())} + '%'"></i></div>
+                            </div>
+                        </div>
+                        <div class="list">
+                            <div class="list-item" th:each="e : ${h.turunan()}">
+                                <span class="code" th:text="${e.key}">D01</span>
+                                <span class="grow small mono" th:text="${e.value}">alasan</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- perhitungan -->
+                <section class="card s-12" th:each="x : ${h.hasil()}" th:if="${!#lists.isEmpty(x.langkah())}">
+                    <div class="card-head">
+                        <span class="chip-icon"><svg class="i"><use href="#i-calc"/></svg></span>
+                        <h3><th:block th:text="'Perhitungan ' + ${x.kode()}">Perhitungan</th:block>
+                            <span class="muted" style="font-weight:500" th:text="' · ' + ${x.nama()}">Nama</span></h3>
+                        <span class="tag" th:classappend="${x.isRisiko()} ? 'risk' : 'ok'" th:text="${x.isRisiko()} ? 'Risiko' : 'Normal'">-</span>
+                    </div>
+                    <div class="calc-grid">
+                    <div>
+                    <p class="small" style="margin:0 0 8px;font-weight:650">CF(H,E) <span class="muted mono" style="font-weight:400"
+                            th:text="${d.isKlinis()} ? '= CF data × CF aturan' : '= CF user × CF pakar'">= CF user × CF pakar</span></p>
+                    <table class="table">
+                        <thead><tr><th>Kode</th><th class="right" th:text="${d.isKlinis()} ? 'CF data' : 'CF user'">CF user</th>
+                            <th class="right" th:text="${d.isKlinis()} ? 'CF aturan' : 'CF pakar'">CF pakar</th><th class="right">CF(H,E)</th></tr></thead>
+                        <tbody>
+                        <tr th:each="l : ${x.langkah()}">
+                            <td class="main"><span class="code" th:text="${l.gejalaKode()}">D01</span></td>
+                            <td class="right num" th:attr="data-label=${d.isKlinis()} ? 'CF data' : 'CF user'" th:text="${@fmt.cf(l.cfUser())}">0</td>
+                            <td class="right num" th:attr="data-label=${d.isKlinis()} ? 'CF aturan' : 'CF pakar'" th:text="${@fmt.cf(l.cfPakar())}">0</td>
+                            <td class="right num" data-label="CF(H,E)"><b th:text="${@fmt.cf(l.cfHE())}">0</b></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div>
+                    <p class="small" style="margin:0 0 8px;font-weight:650">CF combine <span class="muted mono" style="font-weight:400">= CFlama + CFbaru × (1 − CFlama)</span></p>
+                    <ol class="calc">
+                        <li th:each="l : ${x.langkah()}">
+                            <span th:if="${l.cfLama() == null}"><th:block th:text="${l.gejalaKode()}"/> → <b th:text="${@fmt.cf(l.cfHasil())}">0</b></span>
+                            <span th:if="${l.cfLama() != null}"><th:block th:text="${l.gejalaKode()} + ' → ' + ${l.rumus} + ' = '"/><b th:text="${@fmt.cf(l.cfHasil())}">0</b></span>
+                        </li>
+                    </ol>
+                    <div class="total">
+                        <span class="muted">Hasil akhir</span>
+                        <b th:text="${@fmt.cf(x.cf())} + '  →  ' + ${@fmt.persen(x.cf())}">0</b>
+                    </div>
+                    </div>
+                    </div>
+                </section>
+            </div>
+        </details>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

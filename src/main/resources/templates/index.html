@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Cek risiko jantung')}"></head>
+<body class="beranda">
+<div class="progres-gulir" aria-hidden="true"><i data-progres></i></div>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: pubbar('beranda')}"></header>
+
+    <main>
+        <!-- ===================== 1. hero ===================== -->
+        <section class="lapis hero-klinik" data-lapis aria-labelledby="judul-hero">
+            <canvas class="helix" data-helix="hero" aria-hidden="true"></canvas>
+            <div class="hero-isi">
+                <div class="hero-atas">
+                    <p class="label-bagian" data-muncul>Jantungku</p>
+                    <h1 id="judul-hero" data-judul-muncul>Kenali risiko jantung Anda lebih awal</h1>
+                    <p class="hero-lead" data-muncul style="--tunda:.45s">Skrining mandiri berbasis sistem pakar: jawab pertanyaan singkat tentang keluhan Anda,
+                        lalu dapatkan hasil dan saran langkah berikutnya dalam bahasa yang mudah dipahami.</p>
+                </div>
+                <div class="hero-bawah" data-muncul style="--tunda:.6s">
+                    <div class="hero-bawah-kiri">
+                        <p>Gratis · sekitar 2 menit · tanpa antre</p>
+                        <div class="actions">
+                            <a class="btn btn-lg" th:href="@{/daftar}" data-magnet>Mulai cek gratis</a>
+                            <a class="btn kuning btn-lg" href="#layanan" data-magnet>Lihat layanan</a>
+                        </div>
+                    </div>
+                    <nav class="pil-layanan" aria-label="Layanan">
+                        <a href="#layanan">Kuesioner gejala</a>
+                        <a href="#layanan">Pemeriksaan klinis</a>
+                        <a href="#faktor">Gejala yang dinilai</a>
+                        <a href="#layanan">Riwayat kesehatan</a>
+                        <a href="#layanan">Laporan PDF</a>
+                    </nav>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== 2. pernyataan ===================== -->
+        <section class="lapis putih pernyataan" data-lapis>
+            <!-- pita berjalan -->
+            <div class="pita-berjalan" aria-hidden="true">
+                <div class="pita-isi">
+                    <th:block th:each="ulang : ${#numbers.sequence(1, 2)}">
+                        <span>Kuesioner gejala</span><i>✦</i>
+                        <span>Pemeriksaan klinis</span><i>✦</i>
+                        <span th:text="${jmlGejala} + ' gejala dinilai'">13 gejala dinilai</span><i>✦</i>
+                        <span th:text="${jmlRule} + ' aturan pakar'">49 aturan pakar</span><i>✦</i>
+                        <span>Hasil &amp; saran langsung</span><i>✦</i>
+                        <span>Laporan PDF</span><i>✦</i>
+                    </th:block>
+                </div>
+            </div>
+            <div class="lapis-isi">
+                <p class="label-bagian">Mengapa Jantungku</p>
+                <p class="teks-ungkap" data-ungkap>Satu tempat untuk memahami jantung Anda, dari gejala yang Anda rasakan
+                    hingga saran yang bisa langsung dilakukan, dengan penilaian yang disusun oleh pakar.</p>
+            </div>
+        </section>
+
+        <!-- ===================== 3. layanan (rel horizontal) ===================== -->
+        <section class="lapis layanan" id="layanan" data-lapis aria-labelledby="judul-layanan">
+            <div class="lapis-isi" style="padding-bottom:0">
+                <div class="layanan-kepala">
+                    <div>
+                        <p class="label-bagian">Layanan</p>
+                        <h2 id="judul-layanan" class="judul-bagian" style="margin-top:14px">Semua yang Anda butuhkan untuk cek risiko jantung, di satu tempat</h2>
+                    </div>
+                    <p>Mulai dari kuesioner sederhana untuk umum hingga pemeriksaan klinis untuk tenaga kesehatan.
+                        Geser untuk melihat semuanya.</p>
+                </div>
+            </div>
+            <div class="rel-luar" data-rel>
+                <div class="rel-lekat">
+                    <div class="rel">
+                        <article class="kartu-layanan kuning">
+                            <div>
+                                <span class="no">00 · Mulai di sini</span>
+                                <h3>Cek mandiri dalam tiga langkah</h3>
+                            </div>
+                            <ul class="daftar-layanan">
+                                <li>Jawab pertanyaan <svg class="i"><use href="#i-arrow"/></svg></li>
+                                <li>Sistem menilai <svg class="i"><use href="#i-arrow"/></svg></li>
+                                <li>Terima hasil &amp; saran <svg class="i"><use href="#i-arrow"/></svg></li>
+                            </ul>
+                        </article>
+                        <a class="kartu-layanan foto" th:href="@{/daftar}">
+                            <img th:src="@{/img/foto/konsultasi.webp}" alt="Dokter berbincang dengan pasien" loading="lazy">
+                            <div><span class="no">01</span><h3>Kuesioner gejala</h3><p>Untuk umum. Pilih seberapa yakin Anda mengalami setiap gejala.</p></div>
+                            <div class="kartu-bawah"><span>Mulai</span><span class="bulat"><svg class="i"><use href="#i-arrow"/></svg></span></div>
+                        </a>
+                        <a class="kartu-layanan" th:href="@{/tentang}">
+                            <div><span class="no">02</span><h3>Pemeriksaan klinis</h3><p>Untuk tenaga kesehatan. Data EKG, tes treadmill, dan laboratorium dicocokkan dengan aturan pakar.</p></div>
+                            <div class="kartu-bawah"><span>Selengkapnya</span><span class="bulat"><svg class="i"><use href="#i-arrow"/></svg></span></div>
+                        </a>
+                        <a class="kartu-layanan foto" th:href="@{/tentang}">
+                            <img th:src="@{/img/foto/ekg.webp}" alt="Monitor tanda vital menampilkan gelombang EKG" loading="lazy">
+                            <div><span class="no">03</span><h3 th:text="${jmlRule} + ' aturan pakar'">49 aturan pakar</h3><p>Aturan IF–THEN yang disusun dan diperiksa berkala oleh pakar.</p></div>
+                            <div class="kartu-bawah"><span>Cara kerja</span><span class="bulat"><svg class="i"><use href="#i-arrow"/></svg></span></div>
+                        </a>
+                        <a class="kartu-layanan" th:href="@{/daftar}">
+                            <div><span class="no">04</span><h3>Hasil &amp; saran langsung</h3><p>Kesimpulan, tingkat keyakinan dalam persen, dan langkah berikutnya yang jelas.</p></div>
+                            <div class="kartu-bawah"><span>Coba sekarang</span><span class="bulat"><svg class="i"><use href="#i-arrow"/></svg></span></div>
+                        </a>
+                        <a class="kartu-layanan foto" th:href="@{/daftar}">
+                            <img th:src="@{/img/foto/stetoskop.webp}" alt="Tenaga kesehatan memegang stetoskop berbentuk hati" loading="lazy">
+                            <div><span class="no">05</span><h3>Riwayat &amp; laporan PDF</h3><p>Setiap hasil tersimpan di akun Anda dan bisa diunduh untuk dibawa ke dokter.</p></div>
+                            <div class="kartu-bawah"><span>Buat akun</span><span class="bulat"><svg class="i"><use href="#i-arrow"/></svg></span></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== 4. tentang ===================== -->
+        <section class="lapis putih tentang" data-lapis aria-labelledby="judul-tentang">
+            <div class="lapis-isi">
+                <div class="foto-lebar"><img th:src="@{/img/foto/dokter.webp}" alt="Dokter tersenyum berbincang dengan pasien" loading="lazy" data-paralaks></div>
+                <div class="tentang-bawah">
+                    <div>
+                        <p class="label-bagian" id="judul-tentang">Sekilas</p>
+                        <div class="angka-garis" style="margin-top:28px">
+                            <div><b data-count th:text="${jmlGejala}">13</b><span>gejala dinilai</span></div>
+                            <div><b data-count th:text="${jmlRule}">49</b><span>aturan pakar</span></div>
+                            <div><b>2</b><span>cara pemeriksaan</span></div>
+                            <div><b>±2<small>mnt</small></b><span>waktu pengisian</span></div>
+                        </div>
+                    </div>
+                    <p class="teks-ungkap" data-ungkap>Jantungku adalah sistem pakar yang menilai risiko penyakit jantung dengan metode
+                        Certainty Factor. Setiap gejala punya bobot keyakinan dari pakar, lalu digabung menjadi satu tingkat keyakinan
+                        yang mudah dibaca, lengkap dengan saran dan alasannya.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== 5. gejala yang dinilai ===================== -->
+        <section class="lapis faktor" id="faktor" data-lapis aria-labelledby="judul-faktor">
+            <div class="lapis-isi">
+                <p class="label-bagian">Yang dinilai sistem</p>
+                <h2 id="judul-faktor" class="judul-bagian" style="margin-top:14px;max-width:24ch" th:text="${jmlGejala} + ' gejala yang menjadi dasar penilaian'">13 gejala yang menjadi dasar penilaian</h2>
+                <div class="faktor-grid">
+                    <figure class="faktor-foto" data-muncul>
+                        <img th:src="@{/img/jantung.webp}" alt="Ilustrasi anatomi jantung manusia" loading="lazy">
+                        <figcaption>Setiap gejala diberi bobot keyakinan oleh pakar.</figcaption>
+                    </figure>
+                    <ol class="daftar-faktor">
+                        <li th:each="f, s : ${faktor}" data-muncul th:style="'--tunda:' + ${s.index % 6 * 0.05} + 's'">
+                            <div><b th:text="${f.nama()}">Gejala</b><small th:if="${f.keterangan()}" th:text="${f.keterangan()}">Keterangan</small></div>
+                            <span class="tanda" th:classappend="${f.isRisiko()} ? 'risiko' : 'normal'" th:text="${f.isRisiko()} ? 'Tanda risiko' : 'Tanda normal'">Tanda</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== 6. hidup sehat (jejak foto) ===================== -->
+        <section class="lapis putih sehat" data-lapis data-jejak aria-labelledby="judul-sehat">
+            <div class="lapis-isi">
+                <p class="label-bagian">Pencegahan</p>
+                <h2 id="judul-sehat" class="judul-bagian" style="margin-top:14px;max-width:22ch">Langkah kecil hari ini, jantung lebih sehat nanti</h2>
+                <div class="sehat-grid">
+                    <div class="sehat-utama" data-muncul style="color:#fff">
+                        <h3>Hasil skrining paling berguna bila diikuti kebiasaan sehat.</h3>
+                        <p>Cek ulang secara berkala dan bandingkan hasilnya di riwayat Anda untuk melihat perubahannya dari waktu ke waktu.</p>
+                    </div>
+                    <figure class="kartu-foto" data-muncul style="--tunda:.08s">
+                        <img th:src="@{/img/foto/jalan.webp}" alt="Seseorang berjalan pagi di jalan setapak hijau" loading="lazy">
+                        <figcaption><b>Bergerak setiap hari</b><span>Jalan kaki santai pun membantu.</span></figcaption>
+                    </figure>
+                    <figure class="kartu-foto" data-muncul style="--tunda:.16s">
+                        <img th:src="@{/img/foto/makanan.webp}" alt="Mangkuk berisi sayur dan buah segar" loading="lazy">
+                        <figcaption><b>Makan seimbang</b><span>Perbanyak sayur, kurangi garam.</span></figcaption>
+                    </figure>
+                    <figure class="kartu-foto" data-muncul style="--tunda:.24s">
+                        <img th:src="@{/img/foto/stetoskop.webp}" alt="Stetoskop berbentuk hati" loading="lazy">
+                        <figcaption><b>Periksa rutin</b><span>Tekanan darah, gula, kolesterol.</span></figcaption>
+                    </figure>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== 7. daftar cepat ===================== -->
+        <section class="lapis daftar-cepat" data-lapis aria-labelledby="judul-daftar">
+            <canvas class="helix" data-helix="kecil" aria-hidden="true"></canvas>
+            <div class="lapis-isi">
+                <div class="daftar-cepat-teks">
+                    <p class="label-bagian">Mulai sekarang</p>
+                    <h2 id="judul-daftar" class="judul-bagian">Buat akun gratis dan cek risiko jantung Anda hari ini.</h2>
+                    <p>Hasil tersimpan aman di akun Anda. Bila nyeri dada hebat, sesak napas, atau pingsan, jangan menunggu: segera hubungi <b>119</b>.</p>
+                    <p class="small muted" style="margin-top:20px">Sudah punya akun? <a class="tautan" th:href="@{/login}">Masuk di sini</a></p>
+                </div>
+                <div class="kartu-form" data-muncul>
+                    <div class="kartu-form-kepala">
+                        <span class="fitur-ikon"><svg class="i"><use href="#i-user"/></svg></span>
+                        <h3>Buat akun</h3>
+                    </div>
+                    <form class="form" th:action="@{/daftar}" method="post">
+                        <label class="field"><span>Nama lengkap</span>
+                            <input class="input" name="nama" required maxlength="100" autocomplete="name">
+                        </label>
+                        <label class="field"><span>Username</span>
+                            <input class="input" name="username" required pattern="[A-Za-z0-9_.]{3,30}" autocomplete="username" autocapitalize="none" spellcheck="false">
+                        </label>
+                        <div class="grid g-2">
+                            <label class="field"><span>Password</span>
+                                <span class="pw">
+                                    <input class="input" type="password" name="password" required minlength="6" autocomplete="new-password">
+                                    <button type="button" class="pw-toggle" data-lihat-pw aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button>
+                                </span>
+                            </label>
+                            <label class="field"><span>Ulangi password</span>
+                                <span class="pw">
+                                    <input class="input" type="password" name="konfirmasi" required minlength="6" autocomplete="new-password">
+                                    <button type="button" class="pw-toggle" data-lihat-pw aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button>
+                                </span>
+                            </label>
+                        </div>
+                        <label class="check">
+                            <input type="checkbox" name="setuju" value="ya" required>
+                            <span>Saya memahami hasil ini <b>bukan diagnosis dokter</b> dan menyetujui
+                                <a class="tautan" th:href="@{/privasi}" target="_blank" rel="noopener">Kebijakan privasi</a>.</span>
+                        </label>
+                        <button class="btn block btn-lg" type="submit" data-memuat="Membuat akun…">Buat akun gratis <span class="panah"><svg class="i"><use href="#i-right"/></svg></span></button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+</body>
+</html>

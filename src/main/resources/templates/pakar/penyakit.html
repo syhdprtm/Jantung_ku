@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Hipotesis')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Basis pengetahuan</p>
+                <h1>Penyakit &amp; hipotesis</h1>
+                <p>Kesimpulan yang dapat dihasilkan sistem beserta saran penanganannya.</p>
+            </div>
+            <div class="actions">
+                <a class="btn" th:href="@{/pakar/penyakit/tambah}"><svg class="i"><use href="#i-plus"/></svg>Tambah hipotesis</a>
+            </div>
+        </div>
+
+        <div class="grid g-2">
+            <article class="card" th:each="p : ${penyakit}" th:classappend="${p.isRisiko()} ? 'blush' : 'mint'">
+                <div class="card-head">
+                    <span class="chip-icon"><svg class="i"><use th:attr="href=${p.isRisiko()} ? '#i-heart-pulse' : '#i-shield'"/></svg></span>
+                    <div class="grow">
+                        <span class="code" th:text="${p.kode()}">P01</span>
+                    </div>
+                    <a class="icon-btn sm" th:href="@{/pakar/penyakit/{id}/edit(id=${p.id()})}" title="Edit"><svg class="i"><use href="#i-edit"/></svg></a>
+                    <form method="post" th:action="@{/pakar/penyakit/{id}/hapus(id=${p.id()})}"
+                          th:attr="data-confirm='Hapus ' + ${p.kode()} + '? Bobot gejala terkait juga ikut terhapus.'">
+                        <button class="icon-btn sm danger" type="submit" title="Hapus"><svg class="i"><use href="#i-trash"/></svg></button>
+                    </form>
+                </div>
+                <h2 th:text="${p.nama()}">Nama</h2>
+                <p style="margin-top:8px;color:var(--ink-2)" th:text="${p.keterangan()}">Keterangan</p>
+                <div class="advice">
+                    <b>Saran</b>
+                    <span th:text="${p.saran() != null and !#strings.isEmpty(p.saran())} ? ${p.saran()} : '-'">Saran</span>
+                </div>
+                <div class="row" style="margin-top:16px;gap:8px">
+                    <span class="tag on-tint plain" th:text="${p.jmlGejala()} + ' gejala berbobot'">gejala</span>
+                    <span class="tag on-tint plain" th:text="${p.jmlRule()} + ' rule'">rule</span>
+                    <span class="tag on-tint plain" th:text="${p.isRisiko()} ? 'Kategori: risiko' : 'Kategori: normal'">kategori</span>
+                </div>
+            </article>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

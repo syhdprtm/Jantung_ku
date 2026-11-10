@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Buat akun')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: pubbar('daftar')}"></header>
+
+    <main class="auth">
+        <section class="auth-side card sky">
+            <span class="tag on-tint plain" style="color:var(--sky-ink);align-self:flex-start">Gratis</span>
+            <div class="heart-slot">
+                <div><div th:replace="~{fragments/layout :: heart('')}"></div></div>
+            </div>
+            <div>
+                <h2 style="font-size:28px">Simpan setiap hasil pemeriksaan Anda.</h2>
+                <p style="margin-top:10px;color:var(--ink-2)">Riwayat tersimpan di akun Anda. Anda bisa mengunduh laporannya
+                    kapan saja dan menghapus akun beserta seluruh datanya bila tidak lagi diperlukan.</p>
+            </div>
+        </section>
+
+        <section class="auth-form card">
+            <h1>Buat akun</h1>
+            <p class="muted" style="margin:6px 0 24px">Hanya butuh nama, username, dan password.</p>
+
+            <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+
+            <form class="form" th:action="@{/daftar}" method="post">
+                <label class="field"><span>Nama lengkap</span>
+                    <input class="input" name="nama" th:value="${form['nama']}" required maxlength="100" autocomplete="name">
+                </label>
+                <label class="field"><span>Username</span>
+                    <input class="input" name="username" th:value="${form['username']}" required pattern="[A-Za-z0-9_.]{3,30}"
+                           autocomplete="username" autocapitalize="none" spellcheck="false">
+                    <small>3–30 karakter: huruf, angka, titik, atau garis bawah.</small>
+                </label>
+                <div class="grid g-2">
+                    <label class="field"><span>Password</span>
+                        <span class="pw">
+                            <input class="input" type="password" name="password" required minlength="6" autocomplete="new-password">
+                            <button type="button" class="pw-toggle" data-lihat-pw aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button>
+                        </span>
+                        <small>Minimal 6 karakter.</small>
+                    </label>
+                    <label class="field"><span>Ulangi password</span>
+                        <span class="pw">
+                            <input class="input" type="password" name="konfirmasi" required minlength="6" autocomplete="new-password">
+                            <button type="button" class="pw-toggle" data-lihat-pw aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button>
+                        </span>
+                    </label>
+                </div>
+                <label class="check">
+                    <input type="checkbox" name="setuju" value="ya" required th:checked="${form['setuju'] == 'ya'}">
+                    <span>Saya memahami bahwa hasil sistem ini <b>bukan diagnosis dokter</b> dan menyetujui
+                        <a class="tautan" th:href="@{/privasi}" target="_blank" rel="noopener">Kebijakan privasi</a>.</span>
+                </label>
+                <button class="btn block" type="submit" data-memuat="Membuat akun…">Buat akun</button>
+            </form>
+            <p class="muted small center" style="margin-top:16px">Sudah punya akun? <a class="tautan" th:href="@{/login}">Masuk</a></p>
+            <p class="center" style="margin-top:20px"><a class="btn ghost sm" th:href="@{/}"><svg class="i"><use href="#i-left"/></svg>Kembali ke beranda</a></p>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+</body>
+</html>

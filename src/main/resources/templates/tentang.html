@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Tentang')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: pubbar('tentang')}"></header>
+
+    <main class="prose">
+        <a class="crumb" th:href="@{/}" data-kembali><svg class="i"><use href="#i-left"/></svg>Kembali</a>
+        <p class="eyebrow">Tentang</p>
+        <h1>Bagaimana Jantungku bekerja</h1>
+        <p class="lead">Jantungku adalah sistem pakar yang membantu memperkirakan risiko penyakit jantung dari gejala
+            atau hasil pemeriksaan klinis. Sistem meniru cara seorang pakar menimbang bukti, lalu menyatakan hasilnya
+            sebagai tingkat keyakinan.</p>
+
+        <div class="stack">
+            <section class="card">
+                <h2>Dua cara pemeriksaan</h2>
+                <div class="grid g-2" style="margin-top:14px">
+                    <div class="card sky" style="padding:20px">
+                        <b>Kuesioner gejala</b>
+                        <p class="small" style="margin-top:6px"><b>Untuk umum.</b> Anda menjawab seberapa yakin mengalami setiap
+                            gejala. Cocok bila belum memiliki hasil laboratorium.</p>
+                    </div>
+                    <div class="card butter" style="padding:20px">
+                        <b>Pemeriksaan klinis</b>
+                        <p class="small" style="margin-top:6px"><b>Untuk tenaga kesehatan.</b> Data hasil EKG, tes treadmill, dan
+                            laboratorium dicocokkan dengan aturan IF–THEN dari pakar.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Metode Certainty Factor</h2>
+                <p>Certainty Factor (CF) menyatakan seberapa kuat sebuah bukti mendukung suatu kesimpulan, dengan nilai 0
+                    (tidak yakin sama sekali) sampai 1 (pasti). Setiap gejala memiliki bobot keyakinan dari pakar.</p>
+                <ol>
+                    <li>Keyakinan Anda terhadap gejala dikalikan dengan bobot pakar:
+                        <div class="rumus">CF(H,E) = CF user × CF pakar</div></li>
+                    <li>Nilai dari beberapa gejala digabung satu per satu:
+                        <div class="rumus">CF gabungan = CF lama + CF baru × (1 − CF lama)</div></li>
+                    <li>Kemungkinan dengan nilai tertinggi menjadi kesimpulan, lalu ditampilkan dalam persen.</li>
+                </ol>
+                <p style="margin-top:12px"><b>Contoh.</b> Anda “Yakin” (0,8) mengalami nyeri dada, dengan bobot pakar 0,6:
+                    0,8 × 0,6 = 0,48. Lalu “Cukup yakin” (0,6) mengalami sesak napas, bobot pakar 0,5: 0,6 × 0,5 = 0,30.
+                    Gabungannya 0,48 + 0,30 × (1 − 0,48) = 0,636, yaitu keyakinan <b>63,6%</b>.</p>
+                <p style="margin-top:12px">Pada pemeriksaan klinis, data hasil pengukuran dianggap pasti (CF = 1), sehingga
+                    keyakinan hasil sama dengan bobot aturan pakar yang terpenuhi.</p>
+            </section>
+
+            <section class="card">
+                <h2>Basis pengetahuan saat ini</h2>
+                <p>Pengetahuan pakar dikelola dan diperiksa secara berkala oleh pakar melalui aplikasi ini.</p>
+                <div class="kb-stats">
+                    <div><b th:text="${jmlGejala}">13</b><span>gejala</span></div>
+                    <div><b th:text="${jmlPenyakit}">2</b><span>kemungkinan hasil</span></div>
+                    <div><b th:text="${jmlRule}">49</b><span>aturan klinis</span></div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Batasan sistem</h2>
+                <ul>
+                    <li>Hasil adalah perkiraan dan <b>bukan diagnosis dokter</b>. Keputusan medis tetap harus diambil oleh tenaga kesehatan.</li>
+                    <li>Ketepatan hasil bergantung pada kejujuran jawaban dan kelengkapan data yang dimasukkan.</li>
+                    <li>Sistem hanya menilai risiko penyakit jantung secara umum, tidak membedakan jenis penyakit jantung tertentu.</li>
+                    <li>Bila mengalami nyeri dada hebat, sesak napas, atau pingsan, jangan menunggu hasil: segera hubungi <b>119</b>.</li>
+                </ul>
+            </section>
+
+            <section class="card dark" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+                <div>
+                    <h2 style="color:#fff">Siap mencoba?</h2>
+                    <p class="muted" style="margin:0">Pemeriksaan hanya butuh sekitar 2 menit.</p>
+                </div>
+                <a class="btn white" th:href="${me != null} ? @{/diagnosa} : @{/daftar}">Mulai cek sekarang <svg class="i"><use href="#i-right"/></svg></a>
+            </section>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+</body>
+</html>

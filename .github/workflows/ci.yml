@@ -1,0 +1,47 @@
+# Menjalankan seluruh pengujian otomatis setiap kali kode di-push atau ada pull request.
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Siapkan Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Jalankan pengujian (unit + integrasi MySQL)
+        env:
+          DB_USERNAME: root
+          DB_PASSWORD: ""
+        run: bash ./mvnw -B verify
+
+      - name: Simpan laporan pengujian
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laporan-pengujian
+          path: target/surefire-reports/

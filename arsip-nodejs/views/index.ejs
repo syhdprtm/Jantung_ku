@@ -1,0 +1,33 @@
+<%- include('partials/header') %>
+<section class="hero">
+  <div>
+    <h1>Diagnosa Dini Penyakit Jantung</h1>
+    <p>Sistem pakar berbasis metode <b>Certainty Factor (CF)</b> untuk menghitung tingkat keyakinan
+      apakah parameter klinis Anda mengarah pada penyakit jantung atau kondisi normal.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="/login">Login</a>
+      <a class="btn btn-ghost" href="/register">Daftar sebagai User</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><b><%= stat.gejala %></b><span>Gejala / Parameter</span></div>
+    <div class="stat"><b><%= stat.penyakit %></b><span>Hipotesis</span></div>
+    <div class="stat"><b><%= stat.rules %></b><span>Rule Base</span></div>
+  </div>
+</section>
+
+<section class="grid-3">
+  <div class="card">
+    <h3>1. Pilih Keyakinan</h3>
+    <p>Untuk setiap gejala, pilih seberapa yakin Anda mengalaminya (CF User 0 – 1).</p>
+  </div>
+  <div class="card">
+    <h3>2. CF(H,E) = CF User × CF Pakar</h3>
+    <p>Keyakinan Anda dikalikan dengan bobot keyakinan pakar untuk tiap gejala.</p>
+  </div>
+  <div class="card">
+    <h3>3. CF Combine</h3>
+    <p><code>CF = CFlama + CFbaru × (1 − CFlama)</code> digabung berurutan hingga diperoleh nilai akhir.</p>
+  </div>
+</section>
+<%- include('partials/footer') %>

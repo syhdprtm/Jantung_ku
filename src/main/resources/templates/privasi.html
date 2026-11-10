@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Kebijakan privasi')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: pubbar('privasi')}"></header>
+
+    <main class="prose">
+        <a class="crumb" th:href="@{/}" data-kembali><svg class="i"><use href="#i-left"/></svg>Kembali</a>
+        <p class="eyebrow">Kebijakan privasi</p>
+        <h1>Data Anda, dan bagaimana kami menjaganya</h1>
+        <p class="lead">Jantungku mengolah data kesehatan. Halaman ini menjelaskan data apa yang disimpan, untuk apa,
+            siapa yang dapat melihatnya, dan bagaimana Anda menghapusnya.</p>
+
+        <div class="stack">
+            <section class="card">
+                <h2>Data yang disimpan</h2>
+                <ul>
+                    <li><b>Akun:</b> nama lengkap, username, dan password (disimpan teracak satu arah/hash, sehingga tidak dapat dibaca siapa pun).</li>
+                    <li><b>Jawaban kuesioner:</b> gejala yang Anda pilih beserta tingkat keyakinannya.</li>
+                    <li><b>Data pemeriksaan klinis:</b> nilai pemeriksaan yang dimasukkan tenaga kesehatan.</li>
+                    <li><b>Hasil:</b> kesimpulan, tingkat keyakinan, nama pasien, umur (bila diisi), dan waktu pemeriksaan.</li>
+                    <li><b>Waktu persetujuan</b> atas kebijakan ini saat Anda membuat akun.</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2>Untuk apa data dipakai</h2>
+                <ul>
+                    <li>Menghitung dan menampilkan hasil pemeriksaan Anda.</li>
+                    <li>Menyimpan riwayat agar Anda dapat memantau perkembangan dan mengunduh laporan.</li>
+                    <li>Membantu pakar menilai dan memperbaiki ketepatan sistem secara agregat (jumlah dan pola, bukan identitas).</li>
+                </ul>
+                <p style="margin-top:10px">Data tidak dijual, tidak dipakai untuk iklan, dan tidak dibagikan ke pihak lain di luar pengelola aplikasi.</p>
+            </section>
+
+            <section class="card">
+                <h2>Siapa yang dapat melihat</h2>
+                <ul>
+                    <li><b>Anda sendiri:</b> seluruh riwayat dan laporan milik akun Anda.</li>
+                    <li><b>Administrator:</b> untuk mengelola akun dan membantu bila ada masalah.</li>
+                    <li><b>Pakar:</b> untuk meninjau hasil dan menjaga mutu basis pengetahuan.</li>
+                </ul>
+                <p style="margin-top:10px">Setiap perubahan penting (mis. penghapusan data) dicatat dalam log audit.</p>
+            </section>
+
+            <section class="card">
+                <h2>Menghapus data</h2>
+                <ul>
+                    <li>Hapus satu hasil pemeriksaan melalui menu <b>Riwayat</b>.</li>
+                    <li>Hapus akun beserta seluruh riwayatnya melalui menu <b>Profil → Hapus akun</b>. Penghapusan bersifat permanen.</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2>Pernyataan medis</h2>
+                <p>Hasil Jantungku adalah perkiraan sistem pakar dan <b>bukan diagnosis dokter</b>. Selalu konsultasikan
+                    keputusan kesehatan dengan tenaga kesehatan. Dalam keadaan darurat, hubungi <b>119</b>.</p>
+            </section>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+</body>
+</html>

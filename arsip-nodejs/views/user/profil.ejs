@@ -1,0 +1,25 @@
+<%- include('../partials/header') %>
+<div class="auth-box card">
+  <h2>Profil Saya</h2>
+  <p class="muted">Username: <b><%= form.username %></b> · Role: <b><%= form.role === 'admin' ? 'Administrator' : 'User' %></b></p>
+  <%- include('../partials/errors') %>
+  <form method="post" action="/profil" class="form">
+    <label>Nama Lengkap
+      <input name="nama" value="<%= form.nama %>" required>
+    </label>
+    <fieldset>
+      <legend>Ganti Password (kosongkan jika tidak diubah)</legend>
+      <label>Password Lama
+        <input type="password" name="password_lama" autocomplete="current-password">
+      </label>
+      <label>Password Baru
+        <input type="password" name="password_baru" minlength="6" autocomplete="new-password">
+      </label>
+      <label>Konfirmasi Password Baru
+        <input type="password" name="konfirmasi" minlength="6" autocomplete="new-password">
+      </label>
+    </fieldset>
+    <button class="btn btn-primary btn-block">Simpan</button>
+  </form>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sistem-pakar-java",
+      "runtimeExecutable": "java",
+      "runtimeArgs": ["-jar", "target/sistem-pakar-jantung.jar"],
+      "port": 8080
+    }
+  ]
+}

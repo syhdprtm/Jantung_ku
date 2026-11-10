@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Riwayat pemeriksaan')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell" th:with="qs=${f.query()}">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow" th:text="${adminView} ? 'Administrator' : 'Riwayat'">Riwayat</p>
+                <h1 th:text="${adminView} ? 'Riwayat semua pengguna' : 'Riwayat pemeriksaan'">Riwayat</h1>
+                <p th:text="${hal.total()} + ' pemeriksaan' + (${f.aktif} ? ' sesuai filter.' : ' tersimpan.')">0 diagnosa</p>
+            </div>
+            <div class="actions">
+                <a class="btn light" th:href="${basis} + '/excel' + (${qs.isEmpty()} ? '' : '?' + ${qs})">
+                    <svg class="i"><use href="#i-download"/></svg>Ekspor Excel</a>
+                <a th:unless="${adminView}" class="btn" th:href="@{/diagnosa}"><svg class="i"><use href="#i-plus"/></svg>Pemeriksaan baru</a>
+            </div>
+        </div>
+
+        <!-- perkembangan hasil (pengguna) -->
+        <section class="card" style="margin-bottom:16px" th:if="${!adminView and perkembangan != null and #lists.size(perkembangan) > 1}">
+            <div class="card-head">
+                <span class="chip-icon"><svg class="i"><use href="#i-pulse"/></svg></span>
+                <h3>Perkembangan hasil</h3>
+                <span class="small muted" th:text="${#lists.size(perkembangan)} + ' pemeriksaan terakhir'">12</span>
+            </div>
+            <div class="legend">
+                <span><i class="sw risk"></i>Risiko penyakit jantung</span>
+                <span><i class="sw ok"></i>Normal</span>
+            </div>
+            <div class="colchart" role="img" aria-label="Tingkat keyakinan setiap pemeriksaan dari waktu ke waktu" style="height:180px">
+                <div class="cc-axis"><span>100%</span><span>0%</span></div>
+                <div class="cc-plot">
+                    <a class="cc-col" th:each="d : ${perkembangan}" th:href="@{/hasil/{id}(id=${d.id()})}"
+                       th:data-tip="${d.tooltip()}">
+                        <div class="cc-stack" th:if="${d.hasilCf().signum() > 0}" th:style="'height:' + ${@fmt.lebar(d.hasilCf())} + '%'">
+                            <i th:classappend="${d.isRisiko()} ? 'risk' : 'ok'" style="flex-grow:1"></i>
+                        </div>
+                    </a>
+                </div>
+                <div class="cc-labels"><span th:each="d : ${perkembangan}" th:text="${@fmt.tanggalPendek(d.createdAt())}">1 Nov</span></div>
+            </div>
+        </section>
+
+        <!-- filter -->
+        <form class="card filter-bar" method="get" th:action="${basis}" style="margin-bottom:16px">
+            <label class="field grow-2"><span>Cari</span>
+                <span class="search"><svg class="i"><use href="#i-search"/></svg>
+                <input class="input" type="search" name="q" th:value="${f.q()}" th:placeholder="${adminView} ? 'Nama pasien atau username' : 'Nama pasien'"></span>
+            </label>
+            <label class="field"><span>Hasil</span>
+                <select class="select" name="hasil">
+                    <option value="">Semua</option>
+                    <option value="RISIKO" th:selected="${f.hasil() == 'RISIKO'}">Risiko</option>
+                    <option value="NORMAL" th:selected="${f.hasil() == 'NORMAL'}">Normal</option>
+                    <option value="NONE" th:selected="${f.hasil() == 'NONE'}">Tak tersimpulkan</option>
+                </select>
+            </label>
+            <label class="field"><span>Metode</span>
+                <select class="select" name="metode">
+                    <option value="">Semua</option>
+                    <option value="GEJALA" th:selected="${f.metode() == 'GEJALA'}">Kuesioner gejala</option>
+                    <option value="KLINIS" th:selected="${f.metode() == 'KLINIS'}">Pemeriksaan klinis</option>
+                </select>
+            </label>
+            <label class="field"><span>Dari</span><input class="input" type="date" name="dari" th:value="${f.dari()}"></label>
+            <label class="field"><span>Sampai</span><input class="input" type="date" name="sampai" th:value="${f.sampai()}"></label>
+            <div class="filter-act">
+                <button class="btn" type="submit">Terapkan</button>
+                <a class="btn ghost" th:if="${f.aktif}" th:href="${basis}">Reset</a>
+            </div>
+        </form>
+
+        <section class="card flush">
+            <div th:if="${#lists.isEmpty(hal.isi())}" class="empty">
+                <span class="chip-icon"><svg class="i i-lg"><use href="#i-clock"/></svg></span>
+                <th:block th:text="${f.aktif} ? 'Tidak ada pemeriksaan yang cocok dengan filter.' : 'Belum ada riwayat pemeriksaan.'">Kosong</th:block>
+            </div>
+            <table class="table" id="tbl-riwayat" th:unless="${#lists.isEmpty(hal.isi())}">
+                <thead>
+                <tr>
+                    <th>Pasien</th>
+                    <th th:if="${adminView}">Akun</th>
+                    <th>Tanggal</th>
+                    <th>Hasil</th>
+                    <th class="right">Keyakinan</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${hal.isi()}">
+                    <td class="main">
+                        <a th:href="@{/hasil/{id}(id=${d.id()})}" class="title" th:text="${d.namaPasien()}">Pasien</a>
+                        <div class="desc" th:text="(${d.umur() != null} ? ${d.umur()} + ' tahun · ' : '') + ${d.metodeLabel}">umur</div>
+                    </td>
+                    <td th:if="${adminView}" data-label="Akun"><span th:text="'@' + ${d.username()}">@user</span></td>
+                    <td data-label="Tanggal" class="nowrap" th:text="${@fmt.tanggal(d.createdAt())}">Tanggal</td>
+                    <td data-label="Hasil">
+                        <span class="tag" th:classappend="${d.isTersimpulkan()} ? (${d.isRisiko()} ? 'risk' : 'ok') : ''"
+                              th:text="${d.isTersimpulkan()} ? ${d.hasilNama()} : 'Tidak dapat disimpulkan'">Hasil</span>
+                    </td>
+                    <td data-label="Keyakinan" class="right num"><b th:text="${@fmt.persen(d.hasilCf())}">0%</b></td>
+                    <td class="act">
+                        <a class="icon-btn sm" th:href="@{/hasil/{id}(id=${d.id()})}" title="Lihat detail"><svg class="i"><use href="#i-arrow"/></svg></a>
+                        <a class="icon-btn sm" th:href="@{/hasil/{id}/pdf(id=${d.id()})}" title="Unduh PDF"><svg class="i"><use href="#i-file"/></svg></a>
+                        <form method="post" th:action="${adminView} ? @{/admin/riwayat/{id}/hapus(id=${d.id()})} : @{/riwayat/{id}/hapus(id=${d.id()})}"
+                              data-confirm="Hasil pemeriksaan ini akan dihapus dari riwayat dan tidak dapat dikembalikan." data-confirm-ok="Hapus">
+                            <button class="icon-btn sm danger" type="submit" title="Hapus"><svg class="i"><use href="#i-trash"/></svg></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- paginasi -->
+        <nav class="pager" th:if="${hal.jumlahHalaman > 1}" aria-label="Halaman">
+            <span class="small muted" th:text="${hal.dari} + '–' + ${hal.sampai} + ' dari ' + ${hal.total()}">1–15 dari 40</span>
+            <div class="actions">
+                <a class="btn light sm" th:if="${hal.adaSebelum}"
+                   th:href="${basis} + '?' + (${qs.isEmpty()} ? '' : ${qs} + '&') + 'halaman=' + ${hal.halaman() - 1}">Sebelumnya</a>
+                <span class="tag plain" th:text="'Halaman ' + ${hal.halaman()} + ' / ' + ${hal.jumlahHalaman}">1/3</span>
+                <a class="btn light sm" th:if="${hal.adaBerikut}"
+                   th:href="${basis} + '?' + (${qs.isEmpty()} ? '' : ${qs} + '&') + 'halaman=' + ${hal.halaman() + 1}">Berikutnya</a>
+            </div>
+        </nav>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

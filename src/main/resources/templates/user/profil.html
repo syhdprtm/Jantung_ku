@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Profil')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main style="max-width:760px;margin:0 auto">
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Profil</p>
+                <h1>Akun saya</h1>
+            </div>
+        </div>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+
+        <section class="card" th:classappend="${me.isPetugas()} ? 'dark' : 'butter'" style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+            <span class="avatar" style="width:56px;height:56px;font-size:18px;background:rgba(0,0,0,.3);color:var(--ink)" th:text="${me.inisial()}">AB</span>
+            <div class="grow">
+                <b style="font-size:18px" th:text="${me.nama()}">Nama</b>
+                <div class="small" th:classappend="${me.isPetugas()} ? 'muted'" th:text="'@' + ${me.username()} + ' · ' + ${me.roleLabel}">@user</div>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button class="btn sm" th:classappend="${me.isPetugas()} ? 'white' : ''" type="submit"><svg class="i"><use href="#i-logout"/></svg>Keluar</button>
+            </form>
+        </section>
+
+        <form class="card form" th:action="@{/profil}" method="post">
+            <label class="field"><span>Nama lengkap</span>
+                <input class="input" name="nama" th:value="${nama}" required maxlength="100" autocomplete="name">
+            </label>
+            <div style="border-top:1px solid var(--line);padding-top:18px">
+                <h3>Ganti password</h3>
+                <p class="small muted" style="margin-top:4px">Kosongkan bila tidak ingin mengganti password.</p>
+            </div>
+            <label class="field"><span>Password saat ini</span>
+                <span class="pw">
+                    <input class="input" type="password" name="passwordLama" autocomplete="current-password">
+                    <button type="button" class="pw-toggle" data-lihat-pw aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button>
+                </span>
+            </label>
+            <div class="grid g-2">
+                <label class="field"><span>Password baru</span>
+                    <span class="pw">
+                        <input class="input" type="password" name="passwordBaru" minlength="6" autocomplete="new-password">
+                        <button type="button" class="pw-toggle" data-lihat-pw aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button>
+                    </span>
+                    <small>Minimal 6 karakter.</small>
+                </label>
+                <label class="field"><span>Ulangi password baru</span>
+                    <span class="pw">
+                        <input class="input" type="password" name="konfirmasi" minlength="6" autocomplete="new-password">
+                        <button type="button" class="pw-toggle" data-lihat-pw aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button>
+                    </span>
+                </label>
+            </div>
+            <div class="actions" style="justify-content:flex-end">
+                <button class="btn" type="submit" data-memuat="Menyimpan…">Simpan perubahan</button>
+            </div>
+        </form>
+
+        <section class="card zona-bahaya" style="margin-top:16px" th:unless="${me.isPetugas()}">
+            <div class="card-head">
+                <span class="chip-icon" style="background:var(--blush);color:var(--blush-ink)"><svg class="i"><use href="#i-trash"/></svg></span>
+                <h3>Hapus akun</h3>
+            </div>
+            <p class="small muted" style="margin:-6px 0 16px">Akun dan <b>seluruh riwayat pemeriksaan</b> Anda akan dihapus permanen
+                dan tidak dapat dikembalikan. Unduh laporan PDF yang ingin Anda simpan terlebih dahulu.</p>
+            <form class="form" th:action="@{/profil/hapus}" method="post"
+                  data-confirm="Akun dan seluruh riwayat Anda akan dihapus permanen. Lanjutkan?" data-confirm-ok="Hapus akun">
+                <label class="field"><span>Ketik password untuk konfirmasi</span>
+                    <span class="pw">
+                        <input class="input" type="password" name="password" required autocomplete="current-password">
+                        <button type="button" class="pw-toggle" data-lihat-pw aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button>
+                    </span>
+                </label>
+                <div class="actions" style="justify-content:flex-end">
+                    <button class="btn danger" type="submit">Hapus akun saya</button>
+                </div>
+            </form>
+        </section>
+        <p class="small muted center" style="margin-top:16px" th:if="${me.isPetugas()}">Akun administrator dan pakar hanya dapat
+            dihapus oleh administrator lain melalui menu Pengguna.</p>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

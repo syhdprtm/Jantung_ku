@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Gejala & bobot')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Basis pengetahuan</p>
+                <h1>Gejala &amp; bobot CF pakar</h1>
+                <p>Bobot keyakinan pakar tiap gejala terhadap tiap hipotesis. Nilai kosong berarti gejala tidak berpengaruh.</p>
+            </div>
+            <div class="actions">
+                <a class="btn" th:href="@{/pakar/gejala/tambah}"><svg class="i"><use href="#i-plus"/></svg>Tambah gejala</a>
+            </div>
+        </div>
+
+        <section class="card flush">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th style="width:72px">Kode</th>
+                    <th>Gejala</th>
+                    <th class="center" th:each="p : ${penyakit}" th:title="${p.nama()}">
+                        <span class="tag" th:classappend="${p.isRisiko()} ? 'risk' : 'ok'" th:text="${p.kode()}">P01</span>
+                    </th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="g : ${gejala}">
+                    <td class="main"><span class="code" th:text="${g.kode()}">D01</span></td>
+                    <td class="main">
+                        <div class="title" th:text="${g.nama()}">Nama</div>
+                        <div class="desc" th:text="${g.keterangan()}">Keterangan</div>
+                    </td>
+                    <td class="center" th:each="p : ${penyakit}" th:attr="data-label='CF ' + ${p.kode()}"
+                        th:with="v=${g.bobotUntuk(p.id())}">
+                        <span class="cf-pill" th:classappend="${v.signum() > 0} ? 'on' : 'off'"
+                              th:text="${v.signum() > 0} ? ${@fmt.cf(v)} : '—'">0</span>
+                    </td>
+                    <td class="act">
+                        <a class="icon-btn sm" th:href="@{/pakar/gejala/{id}/edit(id=${g.id()})}" title="Edit"><svg class="i"><use href="#i-edit"/></svg></a>
+                        <form method="post" th:action="@{/pakar/gejala/{id}/hapus(id=${g.id()})}" th:attr="data-confirm='Hapus gejala ' + ${g.kode()} + '?'">
+                            <button class="icon-btn sm danger" type="submit" title="Hapus"><svg class="i"><use href="#i-trash"/></svg></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+        <p class="small muted" style="margin:14px 6px 0">
+            <th:block th:each="p, st : ${penyakit}"><b th:text="${p.kode()}">P01</b> = <th:block th:text="${p.nama()}">nama</th:block><th:block th:unless="${st.last}"> · </th:block></th:block>
+        </p>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div>
+    <h1>Dashboard Administrator</h1>
+    <p class="muted">Kelola basis pengetahuan sistem pakar dan pantau aktivitas diagnosa.</p>
+  </div>
+</div>
+
+<div class="grid-3">
+  <a class="stat card link" href="/admin/gejala"><b><%= stat.gejala %></b><span>Gejala</span></a>
+  <a class="stat card link" href="/admin/penyakit"><b><%= stat.penyakit %></b><span>Penyakit / Hipotesis</span></a>
+  <a class="stat card link" href="/admin/rules"><b><%= stat.rules %></b><span>Rule Base</span></a>
+  <a class="stat card link" href="/admin/users"><b><%= stat.user %></b><span>User (<%= stat.admin %> admin)</span></a>
+  <a class="stat card link" href="/admin/riwayat"><b><%= stat.diagnosa %></b><span>Total Diagnosa</span></a>
+  <a class="stat card link" href="/diagnosa"><b>▶</b><span>Uji Diagnosa</span></a>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Sebaran Hasil Diagnosa</h3>
+    <% if (!sebaran.length) { %><p class="muted">Belum ada data.</p><% } %>
+    <% sebaran.forEach((s) => { const pct = stat.diagnosa ? Math.round(s.n / stat.diagnosa * 100) : 0; %>
+      <div class="bar-row">
+        <div class="bar-label"><%= s.nama %></div>
+        <div class="bar"><div class="bar-fill" style="width: <%= pct %>%"></div></div>
+        <div class="bar-val"><%= s.n %></div>
+      </div>
+    <% }) %>
+  </div>
+  <div class="card">
+    <h3>Diagnosa Terbaru</h3>
+    <% if (!terakhir.length) { %><p class="muted">Belum ada data.</p><% } else { %>
+      <table class="table">
+        <thead><tr><th>Akun</th><th>Pasien</th><th>Hasil</th><th>CF</th></tr></thead>
+        <tbody>
+        <% terakhir.forEach((d) => { %>
+          <tr>
+            <td><%= d.nama_user %></td>
+            <td><a href="/hasil/<%= d.id %>"><%= d.nama_pasien %></a></td>
+            <td><%= d.hasil_penyakit || '-' %></td>
+            <td><b><%= persen(d.hasil_cf) %></b></td>
+          </tr>
+        <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</div>
+<%- include('../partials/footer') %>

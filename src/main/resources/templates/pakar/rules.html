@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Rule base')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Basis pengetahuan</p>
+                <h1>Rule base</h1>
+                <p th:text="${#lists.size(rules)} + ' aturan IF–THEN hasil analisis pohon keputusan, masing-masing dengan CF rule.'">Rule</p>
+            </div>
+            <div class="actions">
+                <div class="search" style="min-width:260px">
+                    <svg class="i"><use href="#i-search"/></svg>
+                    <input class="input" type="search" placeholder="Cari kode atau kondisi" data-filter="#tbl-rules" aria-label="Cari rule">
+                </div>
+                <a class="btn light" th:href="@{/pakar/validasi}"><svg class="i"><use href="#i-check"/></svg>Validasi</a>
+                <a class="btn" th:href="@{/pakar/rules/tambah}"><svg class="i"><use href="#i-plus"/></svg>Tambah rule</a>
+            </div>
+        </div>
+
+        <section class="card flush">
+            <table class="table" id="tbl-rules">
+                <thead>
+                <tr><th style="width:64px">Kode</th><th>Jika (IF)</th><th>Maka (THEN)</th><th class="right">CF</th><th></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${rules}">
+                    <td class="main"><span class="code" th:text="${r.kode()}">R1</span></td>
+                    <td class="main">
+                        <div class="cond">
+                            <th:block th:each="s, st : ${r.syarat()}">
+                                <span th:text="${s}">syarat</span><em th:unless="${st.last}">AND</em>
+                            </th:block>
+                        </div>
+                        <div class="desc" style="margin-top:8px" th:text="${r.keterangan()}">Keterangan</div>
+                    </td>
+                    <td data-label="Maka">
+                        <span class="tag" th:classappend="${r.penyakitKode() == null} ? '' : (${r.isRisiko()} ? 'risk' : 'ok')"
+                              th:text="${r.penyakitKode() == null} ? '—' : (${r.isRisiko()} ? 'Terdiagnosis' : 'Normal')">Hasil</span>
+                    </td>
+                    <td data-label="CF rule" class="right"><span class="cf-pill on" th:text="${@fmt.cf(r.cf())}">0.8</span></td>
+                    <td class="act">
+                        <a class="icon-btn sm" th:href="@{/pakar/rules/{id}/edit(id=${r.id()})}" title="Edit"><svg class="i"><use href="#i-edit"/></svg></a>
+                        <form method="post" th:action="@{/pakar/rules/{id}/hapus(id=${r.id()})}" th:attr="data-confirm='Hapus rule ' + ${r.kode()} + '?'">
+                            <button class="icon-btn sm danger" type="submit" title="Hapus"><svg class="i"><use href="#i-trash"/></svg></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

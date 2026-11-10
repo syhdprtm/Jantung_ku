@@ -1,0 +1,36 @@
+<%- include('../partials/header') %>
+<div class="form-box card">
+  <h2><%= title %></h2>
+  <%- include('../partials/errors') %>
+  <form method="post" action="<%= action %>" class="form">
+    <div class="grid-2">
+      <label>Kode Gejala
+        <input name="kode" value="<%= form.kode || '' %>" required placeholder="mis. D14">
+      </label>
+      <label>Nama Gejala
+        <input name="nama" value="<%= form.nama || '' %>" required>
+      </label>
+    </div>
+    <label>Keterangan
+      <textarea name="keterangan" rows="3"><%= form.keterangan || '' %></textarea>
+    </label>
+    <fieldset>
+      <legend>Bobot CF Pakar (0 – 1)</legend>
+      <p class="muted small">Acuan: Definitely 1.0 · Almost Certainly 0.8 · Probably 0.6 · Maybe 0.4 · Unknown 0.2 · No 0</p>
+      <% penyakit.forEach((p) => { const v = form.bobot && form.bobot[p.id] !== undefined ? form.bobot[p.id] : 0; %>
+        <label><%= p.kode %> — <%= p.nama %>
+          <input name="cf_<%= p.id %>" value="<%= v %>" inputmode="decimal" list="cf-terms">
+        </label>
+      <% }) %>
+      <datalist id="cf-terms">
+        <option value="0">No</option>
+        <% CF_PAKAR_TERMS.forEach((t) => { %><option value="<%= t.value %>"><%= t.label %></option><% }) %>
+      </datalist>
+    </fieldset>
+    <div class="actions right">
+      <a class="btn btn-ghost" href="/admin/gejala">Batal</a>
+      <button class="btn btn-primary">Simpan</button>
+    </div>
+  </form>
+</div>
+<%- include('../partials/footer') %>

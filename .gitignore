@@ -1,0 +1,16 @@
+target/
+.idea/
+*.iml
+.vscode/
+arsip-nodejs/node_modules/
+
+# cadangan database lokal: berisi data pengguna & hash password, jangan diunggah
+backup-*.sql
+cadangan-*.sql
+# basis data SQLite lama (versi Node.js)
+data/*.db
+arsip-nodejs/data/*.db
+
+# pengaturan lokal & log
+.claude/settings.local.json
+*.log

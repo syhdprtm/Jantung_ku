@@ -1,0 +1,17 @@
+<%- include('partials/header') %>
+<div class="auth-box card">
+  <h2>Login</h2>
+  <p class="muted">Masuk sebagai Administrator atau User.</p>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+  <form method="post" action="/login" class="form">
+    <label>Username
+      <input name="username" value="<%= form.username || '' %>" required autofocus autocomplete="username">
+    </label>
+    <label>Password
+      <input type="password" name="password" required autocomplete="current-password">
+    </label>
+    <button class="btn btn-primary btn-block">Login</button>
+  </form>
+  <p class="muted center">Belum punya akun? <a href="/register">Daftar di sini</a></p>
+</div>
+<%- include('partials/footer') %>

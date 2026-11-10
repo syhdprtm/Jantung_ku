@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+<div class="form-box card">
+  <h2><%= title %></h2>
+  <%- include('../partials/errors') %>
+  <form method="post" action="<%= action %>" class="form">
+    <div class="grid-2">
+      <label>Kode
+        <input name="kode" value="<%= form.kode || '' %>" required placeholder="mis. P03">
+      </label>
+      <label>Nama Penyakit / Hipotesis
+        <input name="nama" value="<%= form.nama || '' %>" required>
+      </label>
+    </div>
+    <label>Keterangan
+      <textarea name="keterangan" rows="3"><%= form.keterangan || '' %></textarea>
+    </label>
+    <label>Saran / Solusi
+      <textarea name="saran" rows="4"><%= form.saran || '' %></textarea>
+    </label>
+    <div class="actions right">
+      <a class="btn btn-ghost" href="/admin/penyakit">Batal</a>
+      <button class="btn btn-primary">Simpan</button>
+    </div>
+  </form>
+</div>
+<%- include('../partials/footer') %>

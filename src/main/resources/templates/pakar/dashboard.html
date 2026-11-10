@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Dashboard pakar')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main class="konsol">
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+
+        <header class="konsol-kepala">
+            <div>
+                <p class="konsol-tanggal" th:text="${@fmt.hariIni()}">Senin, 9 November 2026</p>
+                <h1 th:text="${@fmt.sapaan()} + ', ' + ${me.namaDepan()}">Selamat pagi</h1>
+                <p>Kelola basis pengetahuan, periksa konsistensi aturan, dan ukur akurasi sistem.</p>
+            </div>
+            <div class="actions">
+                <a class="btn light" th:href="@{/pakar/validasi}">Validasi aturan</a>
+                <a class="btn" th:href="@{/pakar/evaluasi}">Jalankan evaluasi</a>
+            </div>
+        </header>
+
+        <!-- angka kunci -->
+        <section class="kpi" aria-label="Ringkasan basis pengetahuan">
+            <a class="kpi-item" th:href="@{/pakar/gejala}">
+                <span class="kpi-label">Gejala</span>
+                <b class="kpi-angka" data-count th:text="${jmlGejala}">0</b>
+                <span class="kpi-catatan">dengan bobot keyakinan pakar</span>
+            </a>
+            <a class="kpi-item" th:href="@{/pakar/penyakit}">
+                <span class="kpi-label">Hipotesis</span>
+                <b class="kpi-angka" th:text="${jmlPenyakit}">0</b>
+                <span class="kpi-catatan">kemungkinan hasil</span>
+            </a>
+            <a class="kpi-item" th:href="@{/pakar/rules}">
+                <span class="kpi-label">Aturan</span>
+                <b class="kpi-angka" data-count th:text="${jmlRule}">0</b>
+                <span class="kpi-catatan">aturan IF–THEN aktif</span>
+            </a>
+            <a class="kpi-item" th:href="@{/pakar/validasi}">
+                <span class="kpi-label">Validasi</span>
+                <b class="kpi-angka" th:classappend="${jmlBermasalah > 0} ? 'teks-risiko'" th:text="${jmlBermasalah}">0</b>
+                <span class="kpi-catatan">
+                    <span class="status" th:classappend="${jmlBermasalah > 0} ? 'risk' : 'ok'"
+                          th:text="${jmlBermasalah > 0} ? 'perlu diperbaiki' : 'semua aturan valid'">status</span>
+                </span>
+            </a>
+        </section>
+
+        <div class="konsol-grid seimbang">
+            <!-- evaluasi terakhir -->
+            <section class="panel panel-penuh">
+                <header class="panel-kepala">
+                    <div>
+                        <h2>Evaluasi terakhir</h2>
+                        <p th:if="${evaluasi != null}" th:text="${evaluasi.namaFile()} + ' · ' + ${@fmt.tanggal(evaluasi.createdAt())}">file</p>
+                        <p th:if="${evaluasi == null}">Unggah dataset berlabel untuk mengukur akurasi kedua metode.</p>
+                    </div>
+                    <div class="actions">
+                        <div class="legend" th:if="${evaluasi != null}" style="margin:0">
+                            <span><i class="sw ma"></i>Pemeriksaan klinis</span>
+                            <span><i class="sw mb"></i>Kuesioner gejala</span>
+                        </div>
+                        <a class="btn light sm" th:if="${evaluasi != null}" th:href="@{/pakar/evaluasi/{id}(id=${evaluasi.id()})}">Detail</a>
+                        <a class="btn sm" th:if="${evaluasi == null}" th:href="@{/pakar/evaluasi}">Unggah dataset</a>
+                    </div>
+                </header>
+                <th:block th:if="${evaluasi != null}"><div th:replace="~{fragments/layout :: perbandinganMetode(${banding})}"></div></th:block>
+            </section>
+
+            <!-- gejala terbanyak -->
+            <section class="panel">
+                <header class="panel-kepala">
+                    <div><h2>Gejala paling sering dipilih</h2><p>Dari kuesioner gejala.</p></div>
+                </header>
+                <div th:if="${#lists.isEmpty(topGejala)}" class="empty">Belum ada pemeriksaan dengan kuesioner gejala.</div>
+                <ol class="peringkat" th:unless="${#lists.isEmpty(topGejala)}" th:with="maks=${topGejala[0].jumlah()}">
+                    <li th:each="g : ${topGejala}" tabindex="0" th:data-tip="${g.kode()} + ' · ' + ${g.nama()} + ' · ' + ${g.jumlah()} + ' kali dipilih'">
+                        <span class="code" th:text="${g.kode()}">D01</span>
+                        <div class="grow">
+                            <span class="peringkat-nama" th:text="${g.nama()}">Nama</span>
+                            <span class="bar tipis"><i th:style="'width:' + ${g.jumlah() * 100.0 / maks} + '%'"></i></span>
+                        </div>
+                        <b class="num" th:text="${g.jumlah()}">0</b>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- aturan terbanyak -->
+            <section class="panel">
+                <header class="panel-kepala">
+                    <div><h2>Aturan paling sering terpenuhi</h2><p>Dari pemeriksaan klinis.</p></div>
+                </header>
+                <div th:if="${#lists.isEmpty(topRule)}" class="empty">Belum ada pemeriksaan klinis.</div>
+                <ol class="peringkat" th:unless="${#lists.isEmpty(topRule)}" th:with="maks=${topRule[0].jumlah()}">
+                    <li th:each="r : ${topRule}" tabindex="0" th:data-tip="${r.kode()} + ' → ' + ${r.nama()} + ' · ' + ${r.jumlah()} + ' kali terpenuhi'">
+                        <span class="code" th:text="${r.kode()}">R1</span>
+                        <div class="grow">
+                            <span class="peringkat-nama" th:text="'Mengarah ke ' + ${r.nama()}">P01</span>
+                            <span class="bar tipis"><i th:classappend="${r.nama() == 'P01'} ? 'risk' : 'ok'" th:style="'width:' + ${r.jumlah() * 100.0 / maks} + '%'"></i></span>
+                        </div>
+                        <b class="num" th:text="${r.jumlah()}">0</b>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- linimasa perubahan -->
+            <section class="panel panel-penuh">
+                <header class="panel-kepala">
+                    <div><h2>Perubahan basis pengetahuan</h2><p>Catatan terbaru dari audit log.</p></div>
+                </header>
+                <div th:if="${#lists.isEmpty(perubahan)}" class="empty">Belum ada perubahan tercatat.</div>
+                <ol class="linimasa" th:unless="${#lists.isEmpty(perubahan)}">
+                    <li th:each="a : ${perubahan}" th:classappend="${a.aksi() == 'HAPUS'} ? 'risk' : (${a.aksi() == 'TAMBAH'} ? 'ok' : '')">
+                        <div class="linimasa-kepala">
+                            <span class="status" th:classappend="${a.aksi() == 'HAPUS'} ? 'risk' : (${a.aksi() == 'TAMBAH'} ? 'ok' : '')" th:text="${a.aksi()}">UBAH</span>
+                            <span class="code" th:text="${a.kode()}">R3</span>
+                            <span class="muted small" th:text="'@' + ${a.username()} + ' · ' + ${@fmt.tanggal(a.waktu())}">oleh</span>
+                        </div>
+                        <p th:text="${a.sesudah() != null} ? ${a.sesudah()} : ${a.sebelum()}">ringkasan</p>
+                    </li>
+                </ol>
+            </section>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

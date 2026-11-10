@@ -1,0 +1,33 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div>
+    <h1>Manajemen User</h1>
+    <p class="muted">Kelola akun Administrator dan User.</p>
+  </div>
+  <a class="btn btn-primary" href="/admin/users/tambah">+ Tambah User</a>
+</div>
+<div class="card">
+  <table class="table">
+    <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th class="center">Diagnosa</th><th>Terdaftar</th><th class="right">Aksi</th></tr></thead>
+    <tbody>
+    <% users.forEach((u) => { const self = u.id === currentUser.id; %>
+      <tr>
+        <td><b><%= u.nama %></b><% if (self) { %> <span class="muted small">(Anda)</span><% } %></td>
+        <td>@<%= u.username %></td>
+        <td><span class="badge <%= u.role === 'admin' ? 'badge-admin' : 'badge-user' %>"><%= u.role === 'admin' ? 'Administrator' : 'User' %></span></td>
+        <td class="center"><%= u.jml_diagnosa %></td>
+        <td class="small"><%= u.created_at %></td>
+        <td class="right nowrap">
+          <a class="btn btn-sm" href="/admin/users/<%= u.id %>/edit">Edit</a>
+          <% if (!self) { %>
+            <form method="post" action="/admin/users/<%= u.id %>/hapus" class="inline" onsubmit="return confirm('Hapus user @<%= u.username %> beserta riwayat diagnosanya?')">
+              <button class="btn btn-sm btn-danger">Hapus</button>
+            </form>
+          <% } %>
+        </td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('../partials/footer') %>

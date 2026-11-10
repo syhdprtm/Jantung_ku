@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Validasi rule base')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow"><a th:href="@{/pakar/rules}">Rule base</a> / Validasi</p>
+                <h1>Validasi basis pengetahuan</h1>
+                <p>Pemeriksaan otomatis: apakah syarat IF setiap rule mungkin terpenuhi, dan pasangan rule yang dapat terpicu
+                    bersamaan dengan kesimpulan berbeda.</p>
+            </div>
+            <div class="actions">
+                <a class="btn light" th:href="@{/pakar/rules}">Kembali ke rule base</a>
+                <a class="btn" th:href="@{/pakar/evaluasi}"><svg class="i"><use href="#i-calc"/></svg>Uji dengan dataset</a>
+            </div>
+        </div>
+
+        <div class="grid g-3" style="margin-bottom:16px">
+            <div class="card mint stat">
+                <span class="stat-label"><span class="chip-icon"><svg class="i"><use href="#i-check"/></svg></span>Rule valid</span>
+                <span class="stat-value" data-count th:text="${#lists.size(hasil) - jmlBermasalah}">0</span>
+            </div>
+            <div class="card stat" th:classappend="${jmlBermasalah > 0} ? 'blush' : 'mint'">
+                <span class="stat-label"><span class="chip-icon"><svg class="i"><use href="#i-alert"/></svg></span>Tidak mungkin terpicu</span>
+                <span class="stat-value" th:text="${jmlBermasalah}">0</span>
+            </div>
+            <div class="card stat" th:classappend="${#lists.isEmpty(tumpangTindih)} ? 'mint' : 'butter'">
+                <span class="stat-label"><span class="chip-icon"><svg class="i"><use href="#i-layers"/></svg></span>Pasangan tumpang tindih</span>
+                <span class="stat-value" th:text="${#lists.size(tumpangTindih)}">0</span>
+            </div>
+        </div>
+
+        <section class="card" th:if="${jmlBermasalah > 0}" style="margin-bottom:16px">
+            <div class="card-head">
+                <span class="chip-icon" style="background:var(--blush);color:var(--blush-ink)"><svg class="i"><use href="#i-alert"/></svg></span>
+                <h3>Rule yang perlu diperbaiki</h3>
+            </div>
+            <div class="why">
+                <article class="why-rule" th:each="c : ${hasil}" th:unless="${c.valid}">
+                    <div class="head">
+                        <span class="code" th:text="${c.rule().kode()}">R3</span>
+                        <span class="mono small" th:text="'IF ' + ${c.rule().kondisi()}">kondisi</span>
+                        <a class="btn light sm" style="margin-left:auto" th:href="@{/pakar/rules/{id}/edit(id=${c.rule().id()})}">
+                            <svg class="i"><use href="#i-edit"/></svg>Perbaiki</a>
+                    </div>
+                    <ul>
+                        <li th:each="m : ${c.masalah()}">
+                            <span class="ok-ico no"><svg class="i"><use href="#i-x"/></svg></span>
+                            <span class="small" th:text="${m}">masalah</span><span></span>
+                        </li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="card" style="margin-bottom:16px">
+            <div class="card-head">
+                <span class="chip-icon"><svg class="i"><use href="#i-layers"/></svg></span>
+                <h3>Rule tumpang tindih (kesimpulan berbeda)</h3>
+            </div>
+            <p class="small muted" style="margin:-6px 0 14px">Pasangan berikut dapat terpicu oleh pasien yang sama. Pada pohon keputusan
+                yang benar, setiap daun seharusnya saling lepas. Bila keduanya terpicu, sistem tetap memakai CF tertinggi.</p>
+            <div th:if="${#lists.isEmpty(tumpangTindih)}" class="empty">Tidak ada rule yang tumpang tindih.</div>
+            <div class="list">
+                <div class="list-item" th:each="t : ${tumpangTindih}">
+                    <span class="code" th:text="${t.ruleA()}">R13</span>
+                    <span class="small" th:text="'→ ' + ${t.hasilA()}">hasil</span>
+                    <span class="muted small" style="margin:0 6px">bertabrakan dengan</span>
+                    <span class="code" th:text="${t.ruleB()}">R14</span>
+                    <span class="small grow" th:text="'→ ' + ${t.hasilB()}">hasil</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card flush">
+            <table class="table" id="tbl-validasi">
+                <thead><tr><th style="width:64px">Kode</th><th>Syarat terstruktur</th><th>Status</th></tr></thead>
+                <tbody>
+                <tr th:each="c : ${hasil}">
+                    <td class="main"><span class="code" th:text="${c.rule().kode()}">R1</span></td>
+                    <td class="main">
+                        <div class="cond">
+                            <th:block th:each="s, st : ${c.syarat()}">
+                                <span th:text="${s.teks()}">syarat</span><em th:unless="${st.last}">AND</em>
+                            </th:block>
+                            <span th:if="${#lists.isEmpty(c.syarat())}" class="muted">belum terparse</span>
+                        </div>
+                    </td>
+                    <td data-label="Status">
+                        <span class="tag" th:classappend="${c.valid} ? 'ok' : 'risk'" th:text="${c.valid} ? 'Valid' : 'Bermasalah'">Valid</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

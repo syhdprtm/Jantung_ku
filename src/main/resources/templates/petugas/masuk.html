@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Masuk petugas')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: pubbar('petugas')}"></header>
+
+    <main class="auth petugas">
+        <section class="auth-side card dark">
+            <span class="tag plain" style="background:rgba(255,255,255,.12);color:#fff;align-self:flex-start">Khusus petugas</span>
+            <span class="petugas-ikon"><svg class="i"><use href="#i-shield"/></svg></span>
+            <div>
+                <h2 style="font-size:28px;color:#fff">Area administrator dan pakar.</h2>
+                <p class="muted" style="margin-top:10px">Kelola akun, basis pengetahuan, dan evaluasi sistem.
+                    Setiap aktivitas masuk dicatat, dan sesi berakhir otomatis setelah 30 menit tidak aktif.</p>
+            </div>
+        </section>
+
+        <section class="auth-form card">
+            <h1>Masuk petugas</h1>
+            <p class="muted" style="margin:6px 0 24px">Gunakan akun administrator atau pakar.</p>
+
+            <div class="alert info" th:if="${sebagaiPengguna}" role="status"><svg class="i"><use href="#i-info"/></svg>
+                <span>Anda sedang masuk sebagai pengguna. Masuk dengan akun petugas akan mengganti sesi tersebut.</span></div>
+            <div class="alert ok" th:if="${param.keluar}" role="status"><svg class="i"><use href="#i-check"/></svg><span>Anda telah keluar.</span></div>
+            <div class="alert info" th:if="${param.waktuHabis}" role="status"><svg class="i"><use href="#i-clock"/></svg>
+                <span>Sesi berakhir karena tidak ada aktivitas selama 30 menit. Silakan masuk kembali.</span></div>
+            <div class="alert err" th:if="${param.gagal}" role="alert"><svg class="i"><use href="#i-info"/></svg>
+                <span>Username atau password tidak cocok.</span></div>
+            <div class="alert err" th:if="${param.terkunci}" role="alert"><svg class="i"><use href="#i-lock"/></svg>
+                <span>Akun dikunci sementara karena terlalu banyak percobaan. Coba lagi dalam 15 menit atau hubungi administrator.</span></div>
+
+            <form class="form" th:action="@{/petugas/masuk}" method="post">
+                <label class="field"><span>Username</span>
+                    <input class="input" name="username" required autofocus autocomplete="username" autocapitalize="none" spellcheck="false">
+                </label>
+                <label class="field"><span>Password</span>
+                    <span class="pw">
+                        <input class="input" type="password" name="password" required autocomplete="current-password">
+                        <button type="button" class="pw-toggle" data-lihat-pw aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button>
+                    </span>
+                </label>
+                <button class="btn block" type="submit" data-memuat="Memeriksa…"><svg class="i"><use href="#i-lock"/></svg>Masuk</button>
+            </form>
+            <p class="muted small center" style="margin-top:16px">Lupa password? Hubungi administrator lain untuk mengatur ulang.</p>
+            <p class="center" style="margin-top:20px"><a class="btn ghost sm" th:href="@{/}"><svg class="i"><use href="#i-left"/></svg>Kembali ke beranda</a></p>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+</body>
+</html>

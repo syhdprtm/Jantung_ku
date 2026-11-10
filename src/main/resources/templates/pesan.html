@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head(${judul})}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <th:block th:if="${me != null and menu != null}"><header th:replace="~{fragments/layout :: appbar}"></header></th:block>
+    <th:block th:unless="${me != null and menu != null}">
+        <header th:replace="~{fragments/layout :: pubbar('lain')}"></header>
+    </th:block>
+    <main class="card pesan-box">
+        <span class="kode-status" th:if="${kodeStatus != null}" th:text="${kodeStatus}">404</span>
+        <span class="chip-icon pesan-ikon"><svg class="i i-lg"><use href="#i-alert"/></svg></span>
+        <h2 th:text="${judul}">Judul</h2>
+        <p class="muted" style="margin:8px 0 20px" th:text="${pesan}">Pesan</p>
+        <p class="small muted" th:if="${referensi != null and !#strings.isEmpty(referensi)}" style="margin:-8px 0 20px">
+            Kode referensi: <b class="mono" th:text="${referensi}">ABC123</b></p>
+        <div class="actions" style="justify-content:center">
+            <a class="btn light" th:href="@{/}" data-kembali><svg class="i"><use href="#i-left"/></svg>Kembali</a>
+            <a class="btn" th:href="@{/}">Ke beranda</a>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<th:block th:if="${me != null and menu != null}"><nav th:replace="~{fragments/layout :: bottomnav}"></nav></th:block>
+</body>
+</html>

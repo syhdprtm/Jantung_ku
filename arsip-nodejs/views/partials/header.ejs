@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · Sistem Pakar Jantung CF</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar no-print">
+  <a class="brand" href="/">
+    <span class="logo">♥</span>
+    <span>Sistem Pakar <b>Jantung</b> <small>Certainty Factor</small></span>
+  </a>
+  <% if (currentUser) {
+       const isAdmin = currentUser.role === 'admin';
+       const menu = isAdmin
+         ? [['/admin', 'Dashboard'], ['/admin/gejala', 'Gejala & Bobot'], ['/admin/penyakit', 'Penyakit'], ['/admin/rules', 'Rule Base'], ['/admin/users', 'User'], ['/admin/riwayat', 'Riwayat'], ['/diagnosa', 'Uji Diagnosa']]
+         : [['/dashboard', 'Dashboard'], ['/diagnosa', 'Diagnosa'], ['/riwayat', 'Riwayat'], ['/profil', 'Profil']];
+       const aktif = (href) => href === currentPath || (href !== '/admin' && currentPath.startsWith(href + '/'));
+  %>
+    <nav class="menu">
+      <% menu.forEach(([href, label]) => { %>
+        <a href="<%= href %>" class="<%= aktif(href) ? 'active' : '' %>"><%= label %></a>
+      <% }) %>
+    </nav>
+    <div class="who">
+      <span class="badge <%= isAdmin ? 'badge-admin' : 'badge-user' %>"><%= isAdmin ? 'Administrator' : 'User' %></span>
+      <% if (isAdmin) { %><a href="/profil" class="who-name"><%= currentUser.nama %></a><% } else { %><span class="who-name"><%= currentUser.nama %></span><% } %>
+      <form method="post" action="/logout" class="inline"><button class="btn btn-sm btn-ghost">Logout</button></form>
+    </div>
+  <% } else { %>
+    <nav class="menu">
+      <a href="/login" class="<%= currentPath === '/login' ? 'active' : '' %>">Login</a>
+      <a href="/register" class="<%= currentPath === '/register' ? 'active' : '' %>">Daftar</a>
+    </nav>
+  <% } %>
+</header>
+<main class="container">
+  <% if (flash) { %>
+    <div class="alert alert-<%= flash.type %> no-print"><%= flash.msg %></div>
+  <% } %>

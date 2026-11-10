@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Evaluasi akurasi')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Analisis</p>
+                <h1>Evaluasi akurasi sistem pakar</h1>
+                <p>Uji kedua metode terhadap dataset berlabel. Setiap baris dijalankan melalui rule base (pemeriksaan klinis) dan
+                    kuesioner gejala, lalu prediksinya dibandingkan dengan kolom <code>HeartDisease</code>.</p>
+            </div>
+            <div class="actions">
+                <a class="btn light" th:href="@{/pakar/validasi}"><svg class="i"><use href="#i-check"/></svg>Validasi rule</a>
+            </div>
+        </div>
+
+        <div class="grid g-12">
+            <section class="card s-5">
+                <div class="card-head">
+                    <span class="chip-icon"><svg class="i"><use href="#i-upload"/></svg></span>
+                    <h3>Unggah dataset</h3>
+                </div>
+                <form class="dropzone" th:action="@{/pakar/evaluasi(_csrf=${_csrf.token})}" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file" accept=".csv,text/csv" required aria-label="File CSV">
+                    <button class="btn" type="submit"><svg class="i"><use href="#i-calc"/></svg>Jalankan evaluasi</button>
+                </form>
+                <p class="small muted" style="margin-top:14px">Format CSV (pemisah koma atau titik koma) dengan header:</p>
+                <p class="mono small" style="margin-top:6px;overflow-wrap:anywhere">Age, Sex, ChestPainType, RestingBP, Cholesterol, FastingBS,
+                    RestingECG, MaxHR, ExerciseAngina, Oldpeak, ST_Slope, HeartDisease</p>
+                <p class="small muted" style="margin-top:10px">Sesuai dataset <i>Heart Failure Prediction</i> (918 baris) yang menjadi dasar rule base.</p>
+            </section>
+
+            <section class="card flush s-7">
+                <div class="card-head" style="padding:16px 16px 0">
+                    <span class="chip-icon"><svg class="i"><use href="#i-clock"/></svg></span>
+                    <h3>Riwayat evaluasi</h3>
+                </div>
+                <div th:if="${#lists.isEmpty(daftar)}" class="empty">Belum ada evaluasi. Unggah dataset untuk memulai.</div>
+                <table class="table" th:unless="${#lists.isEmpty(daftar)}">
+                    <thead><tr><th>File</th><th class="right">Baris</th><th class="right">Akurasi rule base</th><th class="right">Akurasi kuesioner</th><th></th></tr></thead>
+                    <tbody>
+                    <tr th:each="e : ${daftar}" th:with="mk=${ringkas[e.id()] != null ? ringkas[e.id()]['KLINIS'] : null}, mg=${ringkas[e.id()] != null ? ringkas[e.id()]['GEJALA'] : null}">
+                        <td class="main">
+                            <a class="title" th:href="@{/pakar/evaluasi/{id}(id=${e.id()})}" th:text="${e.namaFile()}">heart.csv</a>
+                            <div class="desc" th:text="${@fmt.tanggal(e.createdAt())} + ' · ' + ${e.namaUser() ?: '-'}">tanggal</div>
+                        </td>
+                        <td data-label="Baris" class="right num" th:text="${e.jumlah()}">918</td>
+                        <td data-label="Akurasi rule base" class="right num"><b th:text="${mk != null} ? ${@fmt.persen(mk.akurasi)} : '-'">0%</b></td>
+                        <td data-label="Akurasi kuesioner" class="right num"><b th:text="${mg != null} ? ${@fmt.persen(mg.akurasi)} : '-'">0%</b></td>
+                        <td class="act">
+                            <a class="icon-btn sm" th:href="@{/pakar/evaluasi/{id}(id=${e.id()})}" title="Detail"><svg class="i"><use href="#i-arrow"/></svg></a>
+                            <form method="post" th:action="@{/pakar/evaluasi/{id}/hapus(id=${e.id()})}" data-confirm="Hapus hasil evaluasi ini?">
+                                <button class="icon-btn sm danger" type="submit" title="Hapus"><svg class="i"><use href="#i-trash"/></svg></button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>

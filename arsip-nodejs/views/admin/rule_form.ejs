@@ -1,0 +1,34 @@
+<%- include('../partials/header') %>
+<div class="form-box card">
+  <h2><%= title %></h2>
+  <%- include('../partials/errors') %>
+  <form method="post" action="<%= action %>" class="form">
+    <div class="grid-2">
+      <label>Kode Rule
+        <input name="kode" value="<%= form.kode || '' %>" required placeholder="mis. R50">
+      </label>
+      <label>CF Rule (0 – 1)
+        <input name="cf" value="<%= form.cf ?? '' %>" required inputmode="decimal" placeholder="mis. 0.8">
+      </label>
+    </div>
+    <label>Kondisi IF (gabungkan dengan AND)
+      <textarea name="kondisi" rows="3" required class="mono" placeholder="ST Slope Up AND Oldpeak > 2.4"><%= form.kondisi || '' %></textarea>
+    </label>
+    <label>Kesimpulan THEN
+      <select name="penyakit_id" required>
+        <option value="">— pilih —</option>
+        <% penyakit.forEach((p) => { %>
+          <option value="<%= p.id %>" <%= Number(form.penyakit_id) === p.id ? 'selected' : '' %>><%= p.kode %> — <%= p.nama %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Keterangan
+      <textarea name="keterangan" rows="3"><%= form.keterangan || '' %></textarea>
+    </label>
+    <div class="actions right">
+      <a class="btn btn-ghost" href="/admin/rules">Batal</a>
+      <button class="btn btn-primary">Simpan</button>
+    </div>
+  </form>
+</div>
+<%- include('../partials/footer') %>

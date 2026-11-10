@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head th:replace="~{fragments/layout :: head('Pemeriksaan klinis')}"></head>
+<body>
+<svg th:replace="~{fragments/layout :: sprite}"></svg>
+<div class="shell">
+    <header th:replace="~{fragments/layout :: appbar}"></header>
+    <main>
+        <nav th:replace="~{fragments/layout :: metodeTabs('KLINIS')}"></nav>
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Pemeriksaan klinis · untuk tenaga kesehatan</p>
+                <h1>Masukkan hasil pemeriksaan klinis</h1>
+                <p>Sistem mencocokkan data ini dengan aturan dari pakar dan menunjukkan aturan mana yang terpenuhi
+                    beserta alasannya.</p>
+            </div>
+            <div class="actions" th:if="${me.isPetugas()}">
+                <button type="button" class="btn light sm" data-contoh="risiko">Isi data uji: berisiko</button>
+                <button type="button" class="btn light sm" data-contoh="normal">Isi data uji: normal</button>
+            </div>
+        </div>
+
+        <div class="banner" role="note">
+            <svg class="i"><use href="#i-info"/></svg>
+            <span>Formulir ini untuk <b>tenaga kesehatan</b>. Isi dari hasil pemeriksaan resmi (EKG, tes treadmill,
+                laboratorium). Bila Anda tidak memiliki data tersebut, gunakan
+                <a class="tautan" th:href="@{/diagnosa}">Kuesioner gejala</a>.</span>
+        </div>
+
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+
+        <div th:replace="~{fragments/layout :: peringatan}"></div>
+
+        <form id="form-klinis" class="form" th:action="@{/diagnosa/klinis}" method="post">
+            <section class="card">
+                <div class="klinis-grid">
+                    <label class="field wide"><span>Nama pasien</span>
+                        <input class="input" name="namaPasien" th:value="${nilai['namaPasien']}" required maxlength="100" autocomplete="off">
+                    </label>
+
+                    <th:block th:each="a : ${atribut}">
+                        <!-- kategori: tombol pilihan -->
+                        <div class="field" th:if="${a.kategori}"
+                             th:classappend="${a.name() == 'CHEST_PAIN' or a.name() == 'ST_SLOPE' or a.name() == 'RESTING_ECG'} ? 'wide' : ''">
+                            <span><th:block th:text="${a.label}">Label</th:block> <span class="hint" th:text="'· ' + ${a.kolom}">kolom</span></span>
+                            <div class="seg" role="radiogroup" th:attr="aria-label=${a.label}">
+                                <label th:each="p : ${a.pilihan}">
+                                    <input type="radio" th:name="${a.kolom}" th:value="${p}" required
+                                           th:checked="${nilai[a.kolom] != null and #strings.equalsIgnoreCase(nilai[a.kolom], p)}">
+                                    <span class="yes" th:text="${p}">P</span>
+                                </label>
+                            </div>
+                            <small th:text="${a.bantuan}">bantuan</small>
+                        </div>
+                        <!-- gula darah puasa: ya/tidak -->
+                        <div class="field" th:if="${a.name() == 'FASTING_BS'}">
+                            <span><th:block th:text="${a.label}">Label</th:block> <span class="hint">· FastingBS</span></span>
+                            <div class="seg" role="radiogroup" aria-label="Gula darah puasa">
+                                <label><input type="radio" name="FastingBS" value="0" required th:checked="${nilai['FastingBS'] == '0'}"><span class="yes">Tidak</span></label>
+                                <label><input type="radio" name="FastingBS" value="1" th:checked="${nilai['FastingBS'] == '1'}"><span class="yes">Ya</span></label>
+                            </div>
+                            <small th:text="${a.bantuan}">bantuan</small>
+                        </div>
+                        <!-- numerik -->
+                        <label class="field" th:if="${!a.kategori and a.name() != 'FASTING_BS'}">
+                            <span><th:block th:text="${a.label}">Label</th:block> <span class="hint" th:text="'· ' + ${a.kolom}">kolom</span></span>
+                            <span class="input-unit">
+                                <input class="input num" type="number" th:name="${a.kolom}" th:value="${nilai[a.kolom]}" required
+                                       th:attr="min=${a.min},max=${a.max},step=${a.name() == 'OLDPEAK' ? '0.1' : '1'}" inputmode="decimal">
+                                <em th:if="${a.satuan}" th:text="${a.satuan}">unit</em>
+                            </span>
+                            <small th:text="${a.bantuan}">bantuan</small>
+                        </label>
+                    </th:block>
+                </div>
+            </section>
+
+            <div class="submit-bar">
+                <span class="count row" style="gap:10px"><span class="beat-ico"><svg class="i"><use href="#i-heart"/></svg></span>
+                    <span>11 data pemeriksaan</span></span>
+                <button class="btn white" type="submit" data-memuat="Memproses…">Lihat hasil <svg class="i"><use href="#i-right"/></svg></button>
+            </div>
+            <p class="catatan-privasi"><svg class="i"><use href="#i-lock"/></svg>Hasil disimpan di akun Anda ·
+                <a class="tautan" th:href="@{/privasi}">Kebijakan privasi</a></p>
+        </form>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<nav th:replace="~{fragments/layout :: bottomnav}"></nav>
+</body>
+</html>
