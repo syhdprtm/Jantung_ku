@@ -1,0 +1,13 @@
+target/
+.git/
+.github/
+.claude/
+.idea/
+.vscode/
+arsip-nodejs/
+data/
+database/
+*.sql
+*.log
+README.md
+DEPLOY.md

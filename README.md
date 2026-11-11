@@ -77,6 +77,12 @@ Semua bisa diubah lewat environment variable tanpa mengubah kode:
 
 Contoh di PowerShell: `$env:PORT=9000; .\mvnw.cmd spring-boot:run`
 
+### Deploy online (gratis)
+Panduan lengkap ada di **[DEPLOY.md](DEPLOY.md)**: aplikasi di **Render** (Docker, paket Free) dan database di
+**TiDB Cloud Starter** (kompatibel MySQL). Di server, profil `prod` aktif
+([`application-prod.properties`](src/main/resources/application-prod.properties)): koneksi TLS, waktu WIB,
+dan aplikasi menolak start bila `ADMIN_PASSWORD` / `PAKAR_PASSWORD` tidak diisi.
+
 ## Fitur per role
 
 | Administrator (`/admin`) | Pakar (`/pakar`) | Pengguna |
